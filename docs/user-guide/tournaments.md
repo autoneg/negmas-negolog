@@ -24,9 +24,9 @@ for i, AgentA in enumerate(agents):
         mechanism = SAOMechanism(issues=issues, n_steps=100)
         mechanism.add(AgentA(name="A"), preferences=ufun1)
         mechanism.add(AgentB(name="B"), preferences=ufun2)
-        
+
         state = mechanism.run()
-        
+
         results.append({
             "agent_a": AgentA.__name__,
             "agent_b": AgentB.__name__,
@@ -50,33 +50,33 @@ def create_domain(seed):
     """Create a random negotiation domain."""
     import random
     random.seed(seed)
-    
+
     issues = [
         make_issue(values=[f"v{i}" for i in range(random.randint(3, 5))], name=f"issue_{j}")
         for j in range(random.randint(2, 4))
     ]
-    
+
     # Create random utility functions
     # ... (implementation details)
-    
+
     return issues, ufun1, ufun2
 
 # Run tournament across multiple domains
 all_results = []
 for domain_seed in range(10):
     issues, ufun1, ufun2 = create_domain(domain_seed)
-    
+
     for AgentA in agents:
         for AgentB in agents:
             if AgentA == AgentB:
                 continue
-                
+
             mechanism = SAOMechanism(issues=issues, n_steps=100)
             mechanism.add(AgentA(name="A"), preferences=ufun1)
             mechanism.add(AgentB(name="B"), preferences=ufun2)
-            
+
             state = mechanism.run()
-            
+
             all_results.append({
                 "domain": domain_seed,
                 "agent_a": AgentA.__name__,

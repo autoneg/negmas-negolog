@@ -43,3 +43,17 @@ docs = [
     "mkdocstrings[python]>=0.29.0",
     "pymdown-extensions>=10.0",
 ]
+
+[tool.ruff]
+exclude = ["vendor/*"]
+
+[tool.ruff.lint]
+# E402: Module level import not at top of file
+# This is intentionally violated in wrapper.py and test_equivalence.py because
+# we need to modify sys.path before importing vendored NegoLog modules
+per-file-ignores = { "src/negmas_negolog/wrapper.py" = ["E402"], "tests/test_equivalence.py" = ["E402"] }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

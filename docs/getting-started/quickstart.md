@@ -85,13 +85,13 @@ Different agents have different negotiation strategies:
 from negmas_negolog import (
     # Time-based concession
     BoulwareAgent,    # Concedes slowly
-    ConcederAgent,    # Concedes quickly  
+    ConcederAgent,    # Concedes quickly
     LinearAgent,      # Concedes linearly
-    
+
     # Competition winners
     Atlas3Agent,      # ANAC 2015 winner
     HardHeaded,       # ANAC 2011 winner
-    
+
     # Sophisticated strategies
     NiceTitForTat,    # Tit-for-tat with opponent modeling
     SAGAAgent,        # Genetic algorithm-based

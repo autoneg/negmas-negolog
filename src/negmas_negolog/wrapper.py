@@ -11,7 +11,7 @@ from __future__ import annotations
 import sys
 from abc import ABC
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, List, Optional, Type
 
 # Add vendored NegoLog to the path BEFORE any imports that depend on it
 NEGOLOG_PATH = Path(__file__).parent.parent.parent / "vendor" / "NegoLog"
@@ -19,11 +19,9 @@ if str(NEGOLOG_PATH) not in sys.path:
     sys.path.insert(0, str(NEGOLOG_PATH))
 
 # Import NegoLog types (must be after path is added)
-from nenv import Bid, Issue, Preference, Action, Offer, Accept  # noqa: E402
+from nenv import Bid, Issue, Preference, Accept  # noqa: E402
 from nenv.Agent import AbstractAgent  # noqa: E402
-from nenv.OpponentModel import AbstractOpponentModel  # noqa: E402
 from nenv.OpponentModel.EstimatedPreference import EstimatedPreference  # noqa: E402
-from nenv.EditablePreference import EditablePreference  # noqa: E402
 
 # Monkey-patch EstimatedPreference to handle preferences without JSON files
 _original_estimated_preference_init = EstimatedPreference.__init__

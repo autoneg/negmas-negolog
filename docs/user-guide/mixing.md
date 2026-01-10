@@ -47,9 +47,9 @@ for NegoLogAgent, NegMASAgent in matchups:
     mechanism = SAOMechanism(issues=issues, n_steps=100)
     mechanism.add(NegoLogAgent(name="negolog"), preferences=buyer_ufun)
     mechanism.add(NegMASAgent(name="negmas"), preferences=seller_ufun)
-    
+
     state = mechanism.run()
-    
+
     print(f"{NegoLogAgent.__name__} vs {NegMASAgent.__name__}")
     print(f"  Agreement: {state.agreement is not None}")
     if state.agreement:

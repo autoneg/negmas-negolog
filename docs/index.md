@@ -13,11 +13,11 @@ A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](
 
     ```bibtex
     @inproceedings{ijcai2024p998,
-      title     = {NegoLog: An Integrated Python-based Automated Negotiation 
+      title     = {NegoLog: An Integrated Python-based Automated Negotiation
                    Framework with Enhanced Assessment Components},
-      author    = {Doğru, Anıl and Keskin, Mehmet Onur and Jonker, Catholijn M. 
+      author    = {Doğru, Anıl and Keskin, Mehmet Onur and Jonker, Catholijn M.
                    and Baarslag, Tim and Aydoğan, Reyhan},
-      booktitle = {Proceedings of the Thirty-Third International Joint Conference 
+      booktitle = {Proceedings of the Thirty-Third International Joint Conference
                    on Artificial Intelligence, {IJCAI-24}},
       publisher = {International Joint Conferences on Artificial Intelligence Organization},
       editor    = {Kate Larson},
