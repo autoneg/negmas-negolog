@@ -1,12 +1,12 @@
 [project]
 name = "negmas-negolog"
-version = "0.1.0"
+version = "0.1.1"
 description = "NegMAS wrappers for NegoLog negotiating agents"
 readme = "README.md"
 authors = [
     { name = "Yasser Mohammad", email = "yasserfarouk@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "negmas>=0.10.0",
     "numpy>=1.24.0",
