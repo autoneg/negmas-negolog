@@ -12,34 +12,50 @@ import seaborn as sb
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # Agg backend for file-based rendering
 
 DRAWING_FORMAT: str = None
 
 
 def set_drawing_format(drawing_format: str):
     """
-        Change the *DRAWING_FORMAT* for the loggers
+    Change the *DRAWING_FORMAT* for the loggers
 
-        **Possible Values**:
-            - **matplotlib-PNG**: Utilizing *matplotlib* and saving as *png* image format
-            - **matplotlib-SVG**: Utilizing *matplotlib* and saving as *svg* image format
-            - **plotly**: Utilizing *plotly* and saving as interactive *html*
+    **Possible Values**:
+        - **matplotlib-PNG**: Utilizing *matplotlib* and saving as *png* image format
+        - **matplotlib-SVG**: Utilizing *matplotlib* and saving as *svg* image format
+        - **plotly**: Utilizing *plotly* and saving as interactive *html*
 
-        :param drawing_format: New drawing format.
-        :return: Nothing
+    :param drawing_format: New drawing format.
+    :return: Nothing
     """
 
-    assert drawing_format in ["matplotlib-PNG", "matplotlib-SVG", "plotly"], "Unknown drawing format"
+    assert drawing_format in [
+        "matplotlib-PNG",
+        "matplotlib-SVG",
+        "plotly",
+    ], "Unknown drawing format"
 
     global DRAWING_FORMAT
 
     DRAWING_FORMAT = drawing_format
-    os.environ['DRAWING_FORMAT'] = drawing_format
+    os.environ["DRAWING_FORMAT"] = drawing_format
 
 
-def draw_heatmap_matplotlib(data: np.ndarray, labels_x: list, labels_y: list, save_path: str, x_axis_name: str, y_axis_name: str, title: str, fmt: str = ".2f", file_format: str = "png", **kwargs):
-    fig = plt.figure(figsize=(len(labels_x) + 2, len(labels_y)), facecolor="white", dpi=1200)
+def draw_heatmap_matplotlib(
+    data: np.ndarray,
+    labels_x: list,
+    labels_y: list,
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    title: str,
+    fmt: str = ".2f",
+    file_format: str = "png",
+    **kwargs,
+):
+    fig = plt.figure(
+        figsize=(len(labels_x) + 2, len(labels_y)), facecolor="white", dpi=1200
+    )
     ax = fig.gca()
 
     data = np.array(data, dtype=np.float32)
@@ -51,24 +67,49 @@ def draw_heatmap_matplotlib(data: np.ndarray, labels_x: list, labels_y: list, sa
         cp = sb.color_palette("rocket", as_cmap=True)
 
     # Min-Max values
-    vmax = 1.
-    vmin = 0.
+    vmax = 1.0
+    vmin = 0.0
 
     if "auto_scale" in kwargs and kwargs["auto_scale"]:
         if None in data:
-            vmax = max(max([data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]) for i in range(data.shape[1]))
-            vmin = min(min([data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]) for i in range(data.shape[1]))
+            vmax = max(
+                max(
+                    [data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]
+                )
+                for i in range(data.shape[1])
+            )
+            vmin = min(
+                min(
+                    [data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]
+                )
+                for i in range(data.shape[1])
+            )
         else:
             vmax = np.max(data)
             vmin = np.min(data)
 
     # Draw
-    hm = sb.heatmap(data=data, annot=True, fmt=fmt, xticklabels=labels_x, yticklabels=labels_y,
-                    vmin=vmin, vmax=vmax, ax=ax, square=False, cmap=cp, annot_kws={"fontsize": 16, "weight": "bold"})
+    hm = sb.heatmap(
+        data=data,
+        annot=True,
+        fmt=fmt,
+        xticklabels=labels_x,
+        yticklabels=labels_y,
+        vmin=vmin,
+        vmax=vmax,
+        ax=ax,
+        square=False,
+        cmap=cp,
+        annot_kws={"fontsize": 16, "weight": "bold"},
+    )
 
     hm.set_facecolor("dimgray")
-    hm.set_xticklabels(hm.get_xticklabels(), rotation=45, horizontalalignment='right', fontsize=16)
-    hm.set_yticklabels(hm.get_yticklabels(), rotation=0, horizontalalignment='right', fontsize=16)
+    hm.set_xticklabels(
+        hm.get_xticklabels(), rotation=45, horizontalalignment="right", fontsize=16
+    )
+    hm.set_yticklabels(
+        hm.get_yticklabels(), rotation=0, horizontalalignment="right", fontsize=16
+    )
 
     plt.title(title, fontsize=20)
 
@@ -83,7 +124,17 @@ def draw_heatmap_matplotlib(data: np.ndarray, labels_x: list, labels_y: list, sa
     plt.close()
 
 
-def draw_heatmap_plotly(data: np.ndarray, labels_x: list, labels_y: list, save_path: str, x_axis_name: str, y_axis_name: str, title: str, fmt: str = ".2f", **kwargs):
+def draw_heatmap_plotly(
+    data: np.ndarray,
+    labels_x: list,
+    labels_y: list,
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    title: str,
+    fmt: str = ".2f",
+    **kwargs,
+):
     data = np.array(data, dtype=np.float32)
 
     # Color Scale
@@ -93,15 +144,23 @@ def draw_heatmap_plotly(data: np.ndarray, labels_x: list, labels_y: list, save_p
         cs = "Viridis"
 
     # Min-Max values
-    zmax = 1.
-    zmin = 0.
+    zmax = 1.0
+    zmin = 0.0
 
     if "auto_scale" in kwargs and kwargs["auto_scale"]:
         if None in data:
             zmax = max(
-                max([data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]) for i in range(data.shape[1]))
+                max(
+                    [data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]
+                )
+                for i in range(data.shape[1])
+            )
             zmin = min(
-                min([data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]) for i in range(data.shape[1]))
+                min(
+                    [data[i, j] for j in range(data.shape[1]) if data[i, j] is not None]
+                )
+                for i in range(data.shape[1])
+            )
         else:
             zmax = np.max(data)
             zmin = np.min(data)
@@ -125,15 +184,38 @@ def draw_heatmap_plotly(data: np.ndarray, labels_x: list, labels_y: list, save_p
                 annotation[i].append("")
 
     # Draw
-    fig = ff.create_annotated_heatmap(z=data, x=labels_x, y=labels_y, zmax=zmax, zmin=zmin, showscale=True, hoverongaps=True, annotation_text=np.array(annotation), colorscale=cs)
-    fig.update_layout(title_text=f"<b>{title}</b>", xaxis={"title": f"<b>{x_axis_name}</b>"}, yaxis={"title": f"<b>{y_axis_name}</b>"})
+    fig = ff.create_annotated_heatmap(
+        z=data,
+        x=labels_x,
+        y=labels_y,
+        zmax=zmax,
+        zmin=zmin,
+        showscale=True,
+        hoverongaps=True,
+        annotation_text=np.array(annotation),
+        colorscale=cs,
+    )
+    fig.update_layout(
+        title_text=f"<b>{title}</b>",
+        xaxis={"title": f"<b>{x_axis_name}</b>"},
+        yaxis={"title": f"<b>{y_axis_name}</b>"},
+    )
 
     save_path = save_path + ".html"
 
     plotly.offline.plot(fig, filename=save_path, auto_open=False)
 
 
-def draw_heatmap(data: Union[List[List[float]] | np.ndarray], labels_x: List[str], labels_y: List[str], save_path: str, x_axis_name: str, y_axis_name: str, fmt: str = ".2f", **kwargs):
+def draw_heatmap(
+    data: Union[List[List[float]] | np.ndarray],
+    labels_x: List[str],
+    labels_y: List[str],
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    fmt: str = ".2f",
+    **kwargs,
+):
     """
         This method draws a heatmap
 
@@ -158,20 +240,61 @@ def draw_heatmap(data: Union[List[List[float]] | np.ndarray], labels_x: List[str
         data = np.array(data, dtype=np.float32)
 
     if DRAWING_FORMAT == "plotly":
-        draw_heatmap_plotly(data, labels_x, labels_y, save_path, x_axis_name, y_axis_name, title, fmt, **kwargs)
+        draw_heatmap_plotly(
+            data,
+            labels_x,
+            labels_y,
+            save_path,
+            x_axis_name,
+            y_axis_name,
+            title,
+            fmt,
+            **kwargs,
+        )
     elif DRAWING_FORMAT == "matplotlib-SVG":
-        draw_heatmap_matplotlib(data, labels_x, labels_y, save_path, x_axis_name, y_axis_name, title, fmt, "svg", **kwargs)
+        draw_heatmap_matplotlib(
+            data,
+            labels_x,
+            labels_y,
+            save_path,
+            x_axis_name,
+            y_axis_name,
+            title,
+            fmt,
+            "svg",
+            **kwargs,
+        )
     elif DRAWING_FORMAT == "matplotlib-PNG":
-        draw_heatmap_matplotlib(data, labels_x, labels_y, save_path, x_axis_name, y_axis_name, title, fmt, "png",
-                                **kwargs)
+        draw_heatmap_matplotlib(
+            data,
+            labels_x,
+            labels_y,
+            save_path,
+            x_axis_name,
+            y_axis_name,
+            title,
+            fmt,
+            "png",
+            **kwargs,
+        )
     else:
         raise Exception(f"Unknown drawing format: {DRAWING_FORMAT}")
 
     if "save_to_csv" not in kwargs or kwargs["save_to_csv"]:
-        save_heatmap(data, labels_x, labels_y, save_path, x_axis_name, y_axis_name, title)
+        save_heatmap(
+            data, labels_x, labels_y, save_path, x_axis_name, y_axis_name, title
+        )
 
 
-def save_heatmap(data: np.ndarray, labels_x: list, labels_y: list, save_path: str, x_axis_name: str, y_axis_name: str, title: str):
+def save_heatmap(
+    data: np.ndarray,
+    labels_x: list,
+    labels_y: list,
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    title: str,
+):
     save_path = save_path + ".csv"
 
     with open(save_path, "w") as f:
@@ -196,7 +319,14 @@ def save_heatmap(data: np.ndarray, labels_x: list, labels_y: list, save_path: st
             f.write("\n")
 
 
-def draw_line_matplotlib(data: dict, save_path: str, x_axis_name: str, y_axis_name: str, title: str, file_format: str = "png"):
+def draw_line_matplotlib(
+    data: dict,
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    title: str,
+    file_format: str = "png",
+):
     # Plot them separately
     for key in data.keys():
         plt.plot(np.array(list(range(len(data[key])))), np.array(data[key]), label=key)
@@ -218,7 +348,9 @@ def draw_line_matplotlib(data: dict, save_path: str, x_axis_name: str, y_axis_na
     plt.close()
 
 
-def draw_line_plotly(data: dict, save_path: str, x_axis_name: str, y_axis_name: str, title: str):
+def draw_line_plotly(
+    data: dict, save_path: str, x_axis_name: str, y_axis_name: str, title: str
+):
     df = pd.DataFrame(data)
 
     fig = px.line(df, x=x_axis_name, y=y_axis_name, title=title)
@@ -228,7 +360,13 @@ def draw_line_plotly(data: dict, save_path: str, x_axis_name: str, y_axis_name: 
     plotly.offline.plot(fig, filename=save_path, auto_open=False)
 
 
-def draw_line(data: Dict[str, Union[List[float], np.ndarray]], save_path: str, x_axis_name: str, y_axis_name: str, save_to_csv: bool = True):
+def draw_line(
+    data: Dict[str, Union[List[float], np.ndarray]],
+    save_path: str,
+    x_axis_name: str,
+    y_axis_name: str,
+    save_to_csv: bool = True,
+):
     """
         This method draws a line graph
 
@@ -259,7 +397,9 @@ def draw_line(data: Dict[str, Union[List[float], np.ndarray]], save_path: str, x
         save_line(data, save_path, x_axis_name, y_axis_name, title)
 
 
-def save_line(data: dict, save_path: str, x_axis_name: str, y_axis_name: str, title: str):
+def save_line(
+    data: dict, save_path: str, x_axis_name: str, y_axis_name: str, title: str
+):
     save_path = save_path + ".csv"
 
     with open(save_path, "w") as f:
