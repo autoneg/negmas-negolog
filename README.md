@@ -1,7 +1,12 @@
 # negmas-negolog
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/negmas-negolog.svg)](https://pypi.python.org/pypi/negmas-negolog)
+[![PyPI - Version](https://img.shields.io/pypi/v/negmas-negolog.svg)](https://pypi.python.org/pypi/negmas-negolog)
+[![PyPI - Status](https://img.shields.io/pypi/status/negmas-negolog.svg)](https://pypi.python.org/pypi/negmas-negolog)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/negmas-negolog.svg)](https://pypi.python.org/pypi/negmas-negolog)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Tests](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml/badge.svg)](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/negoforta/NegoLog) negotiation frameworks, allowing NegoLog agents to be used as NegMAS SAONegotiator instances.
 
