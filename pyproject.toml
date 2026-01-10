@@ -1,6 +1,6 @@
 [project]
 name = "negmas-negolog"
-version = "0.1.1"
+version = "0.1.2"
 description = "NegMAS wrappers for NegoLog negotiating agents"
 readme = "README.md"
 authors = [
