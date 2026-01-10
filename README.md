@@ -5,6 +5,37 @@
 
 A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/negoforta/NegoLog) negotiation frameworks, allowing NegoLog agents to be used as NegMAS SAONegotiator instances.
 
+---
+
+## NegoLog Attribution
+
+This package vendors **[NegoLog](https://github.com/negoforta/NegoLog)** — an integrated Python-based automated negotiation framework.
+
+- **Source Repository:** [https://github.com/negoforta/NegoLog](https://github.com/negoforta/NegoLog)
+- **License:** GPL-3.0
+- **Copyright:** (C) 2024 Anıl Doğru, M. Onur Keskin & Reyhan Aydoğan
+
+NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper:
+
+```bibtex
+@inproceedings{ijcai2024p998,
+  title     = {NegoLog: An Integrated Python-based Automated Negotiation Framework with Enhanced Assessment Components},
+  author    = {Doğru, Anıl and Keskin, Mehmet Onur and Jonker, Catholijn M. and Baarslag, Tim and Aydoğan, Reyhan},
+  booktitle = {Proceedings of the Thirty-Third International Joint Conference on
+               Artificial Intelligence, {IJCAI-24}},
+  publisher = {International Joint Conferences on Artificial Intelligence Organization},
+  editor    = {Kate Larson},
+  pages     = {8640--8643},
+  year      = {2024},
+  month     = {8},
+  note      = {Demo Track},
+  doi       = {10.24963/ijcai.2024/998},
+  url       = {https://doi.org/10.24963/ijcai.2024/998},
+}
+```
+
+---
+
 ## Features
 
 - **25 NegoLog agents** available as NegMAS negotiators
@@ -245,11 +276,11 @@ AGPL-3.0 License - see [LICENSE](LICENSE) for details.
 ## Acknowledgments
 
 - [NegMAS](https://github.com/yasserfarouk/negmas) - Negotiation Managed by Situated Agents
-- [NegoLog](https://github.com/negoforta/NegoLog) - Negotiation Environment for Learning and Optimization
+- [NegoLog](https://github.com/negoforta/NegoLog) - Negotiation Environment for Learning and Optimization (see [NegoLog Attribution](#negolog-attribution) above)
 
 ## Citation
 
-If you use this library in your research, please cite:
+If you use this library in your research, please cite both this wrapper and the original NegoLog paper:
 
 ```bibtex
 @software{negmas_negolog,
@@ -257,5 +288,20 @@ If you use this library in your research, please cite:
   author = {Mohammad, Yasser},
   year = {2024},
   url = {https://github.com/yasserfarouk/negmas-negolog}
+}
+
+@inproceedings{ijcai2024p998,
+  title     = {NegoLog: An Integrated Python-based Automated Negotiation Framework with Enhanced Assessment Components},
+  author    = {Doğru, Anıl and Keskin, Mehmet Onur and Jonker, Catholijn M. and Baarslag, Tim and Aydoğan, Reyhan},
+  booktitle = {Proceedings of the Thirty-Third International Joint Conference on
+               Artificial Intelligence, {IJCAI-24}},
+  publisher = {International Joint Conferences on Artificial Intelligence Organization},
+  editor    = {Kate Larson},
+  pages     = {8640--8643},
+  year      = {2024},
+  month     = {8},
+  note      = {Demo Track},
+  doi       = {10.24963/ijcai.2024/998},
+  url       = {https://doi.org/10.24963/ijcai.2024/998},
 }
 ```

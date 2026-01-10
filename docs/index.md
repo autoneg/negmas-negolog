@@ -2,6 +2,34 @@
 
 A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/negoforta/NegoLog) negotiation frameworks.
 
+!!! warning "NegoLog Attribution"
+    This package vendors **[NegoLog](https://github.com/negoforta/NegoLog)** — an integrated Python-based automated negotiation framework.
+
+    - **Source Repository:** [https://github.com/negoforta/NegoLog](https://github.com/negoforta/NegoLog)
+    - **License:** GPL-3.0
+    - **Copyright:** (C) 2024 Anıl Doğru, M. Onur Keskin & Reyhan Aydoğan
+
+    NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper:
+
+    ```bibtex
+    @inproceedings{ijcai2024p998,
+      title     = {NegoLog: An Integrated Python-based Automated Negotiation 
+                   Framework with Enhanced Assessment Components},
+      author    = {Doğru, Anıl and Keskin, Mehmet Onur and Jonker, Catholijn M. 
+                   and Baarslag, Tim and Aydoğan, Reyhan},
+      booktitle = {Proceedings of the Thirty-Third International Joint Conference 
+                   on Artificial Intelligence, {IJCAI-24}},
+      publisher = {International Joint Conferences on Artificial Intelligence Organization},
+      editor    = {Kate Larson},
+      pages     = {8640--8643},
+      year      = {2024},
+      month     = {8},
+      note      = {Demo Track},
+      doi       = {10.24963/ijcai.2024/998},
+      url       = {https://doi.org/10.24963/ijcai.2024/998},
+    }
+    ```
+
 ## Overview
 
 **negmas-negolog** allows you to use NegoLog negotiating agents within the NegMAS framework as `SAONegotiator` instances. This enables:
