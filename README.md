@@ -8,19 +8,19 @@
 [![Tests](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml/badge.svg)](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/negoforta/NegoLog) negotiation frameworks, allowing NegoLog agents to be used as NegMAS SAONegotiator instances.
+A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/aniltrue/NegoLog) negotiation frameworks, allowing NegoLog agents to be used as NegMAS SAONegotiator instances.
 
 ---
 
 ## NegoLog Attribution
 
-This package vendors **[NegoLog](https://github.com/negoforta/NegoLog)** — an integrated Python-based automated negotiation framework.
+This package vendors **[NegoLog](https://github.com/aniltrue/NegoLog)** — an integrated Python-based automated negotiation framework.
 
-- **Source Repository:** [https://github.com/negoforta/NegoLog](https://github.com/negoforta/NegoLog)
+- **Source Repository:** [https://github.com/aniltrue/NegoLog](https://github.com/aniltrue/NegoLog)
 - **License:** GPL-3.0
 - **Copyright:** (C) 2024 Anıl Doğru, M. Onur Keskin & Reyhan Aydoğan
 
-NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper:
+NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper as well as NegMAS (see [Citation](#citation)):
 
 ```bibtex
 @inproceedings{ijcai2024p998,
@@ -281,11 +281,11 @@ AGPL-3.0 License - see [LICENSE](LICENSE) for details.
 ## Acknowledgments
 
 - [NegMAS](https://github.com/yasserfarouk/negmas) - Negotiation Managed by Situated Agents
-- [NegoLog](https://github.com/negoforta/NegoLog) - Negotiation Environment for Learning and Optimization (see [NegoLog Attribution](#negolog-attribution) above)
+- [NegoLog](https://github.com/aniltrue/NegoLog) - Negotiation Environment for Learning and Optimization (see [NegoLog Attribution](#negolog-attribution) above)
 
 ## Citation
 
-If you use this library in your research, please cite both this wrapper and the original NegoLog paper:
+If you use this library in your research, please cite this wrapper, NegMAS, and the original NegoLog paper:
 
 ```bibtex
 @software{negmas_negolog,
@@ -293,6 +293,14 @@ If you use this library in your research, please cite both this wrapper and the 
   author = {Mohammad, Yasser},
   year = {2024},
   url = {https://github.com/yasserfarouk/negmas-negolog}
+}
+
+@inproceedings{mohammad2018negmas,
+  title     = {NegMAS: A Platform for Situated Negotiations},
+  author    = {Mohammad, Yasser and Greenwald, Amy and Nakadai, Shinji},
+  booktitle = {ACAN Workshop at IJCAI},
+  year      = {2018},
+  url       = {https://github.com/yasserfarouk/negmas}
 }
 
 @inproceedings{ijcai2024p998,

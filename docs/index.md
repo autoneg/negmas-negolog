@@ -1,17 +1,25 @@
 # negmas-negolog
 
-A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/negoforta/NegoLog) negotiation frameworks.
+A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/aniltrue/NegoLog) negotiation frameworks.
 
 !!! warning "NegoLog Attribution"
-    This package vendors **[NegoLog](https://github.com/negoforta/NegoLog)** — an integrated Python-based automated negotiation framework.
+    This package vendors **[NegoLog](https://github.com/aniltrue/NegoLog)** — an integrated Python-based automated negotiation framework.
 
-    - **Source Repository:** [https://github.com/negoforta/NegoLog](https://github.com/negoforta/NegoLog)
+    - **Source Repository:** [https://github.com/aniltrue/NegoLog](https://github.com/aniltrue/NegoLog)
     - **License:** GPL-3.0
     - **Copyright:** (C) 2024 Anıl Doğru, M. Onur Keskin & Reyhan Aydoğan
 
-    NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper:
+    NegoLog was presented at **IJCAI 2024**. If you use this package, please cite the original NegoLog paper as well as NegMAS:
 
     ```bibtex
+    @inproceedings{mohammad2018negmas,
+      title     = {NegMAS: A Platform for Situated Negotiations},
+      author    = {Mohammad, Yasser and Greenwald, Amy and Nakadai, Shinji},
+      booktitle = {ACAN Workshop at IJCAI},
+      year      = {2018},
+      url       = {https://github.com/yasserfarouk/negmas}
+    }
+
     @inproceedings{ijcai2024p998,
       title     = {NegoLog: An Integrated Python-based Automated Negotiation
                    Framework with Enhanced Assessment Components},
