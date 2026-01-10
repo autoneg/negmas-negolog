@@ -1,0 +1,72 @@
+site_name: negmas-negolog
+site_description: Bridge between NegMAS and NegoLog negotiation frameworks
+site_author: Yasser Mohammad
+site_url: https://yasserfarouk.github.io/negmas-negolog/
+
+repo_name: yasserfarouk/negmas-negolog
+repo_url: https://github.com/yasserfarouk/negmas-negolog
+
+copyright: Copyright &copy; 2024 Yasser Mohammad
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 2
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - User Guide:
+    - Available Agents: user-guide/agents.md
+    - Mixing with NegMAS: user-guide/mixing.md
+    - Running Tournaments: user-guide/tournaments.md
+  - API Reference:
+    - Wrapper Classes: api/wrappers.md
+    - Base Classes: api/base.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Architecture: development/architecture.md

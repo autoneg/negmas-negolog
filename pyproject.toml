@@ -1,0 +1,33 @@
+[project]
+name = "negmas-negolog"
+version = "0.1.0"
+description = "NegMAS wrappers for NegoLog negotiating agents"
+readme = "README.md"
+authors = [
+    { name = "Yasser Mohammad", email = "yasserfarouk@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "negmas>=0.10.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "PyYAML>=6.0",
+    # NegoLog dependencies
+    "plotly>=5.18.0",
+    "seaborn>=0.13.0",
+    "scikit-learn>=1.4.0",
+    "openpyxl>=3.1.0",
+    "numba>=0.58.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"

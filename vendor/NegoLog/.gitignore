@@ -1,0 +1,9 @@
+/results/*
+/agent_storage/*
+*.pkl
+/.idea
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*/__pycache__
