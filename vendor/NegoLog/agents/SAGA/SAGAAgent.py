@@ -8,20 +8,24 @@ from agents.SAGA.GeneticAlgorithm import GeneticAlgorithm
 
 class SAGAAgent(nenv.AbstractAgent):
     """
-        **SAGA Agent by Yuta Hosokawa**:
-            SAGA Agent applies Genetic Algorithm approach to estimate the self preferences. In Genetic Algorithm, the
-            fitness function is based on Spearman metric. For the bidding and acceptance strategies, it has Time-Based
-            approaches. [Aydogan2020]_
+    **SAGA Agent by Yuta Hosokawa**:
+        SAGA Agent applies Genetic Algorithm approach to estimate the self preferences. In Genetic Algorithm, the
+        fitness function is based on Spearman metric. For the bidding and acceptance strategies, it has Time-Based
+        approaches. [Aydogan2020]_
 
-        ANAC 2019 individual utility category finalist.
+    ANAC 2019 individual utility category finalist.
 
-        .. [Aydogan2020] Aydoğan, R. et al. (2020). Challenges and Main Results of the Automated Negotiating Agents Competition (ANAC) 2019. In: Bassiliades, N., Chalkiadakis, G., de Jonge, D. (eds) Multi-Agent Systems and Agreement Technologies. EUMAS AT 2020 2020. Lecture Notes in Computer Science(), vol 12520. Springer, Cham. <https://doi.org/10.1007/978-3-030-66412-1_23>
+    .. [Aydogan2020] Aydoğan, R. et al. (2020). Challenges and Main Results of the Automated Negotiating Agents Competition (ANAC) 2019. In: Bassiliades, N., Chalkiadakis, G., de Jonge, D. (eds) Multi-Agent Systems and Agreement Technologies. EUMAS AT 2020 2020. Lecture Notes in Computer Science(), vol 12520. Springer, Cham. <https://doi.org/10.1007/978-3-030-66412-1_23>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
-    rnd: random.Random                              #: Random object
-    lastOffer: Optional[nenv.Bid]                   #: Last received bid
-    isFirst: bool                                   #: Whether the received bid is the first, or not
-    firstUtil: float                                #: Utility value of the first received bid
-    pref: nenv.Preference                           #: Estimated preferences of the SAGA Agent
+
+    rnd: random.Random  #: Random object
+    lastOffer: Optional[nenv.Bid]  #: Last received bid
+    isFirst: bool  #: Whether the received bid is the first, or not
+    firstUtil: float  #: Utility value of the first received bid
+    pref: nenv.Preference  #: Estimated preferences of the SAGA Agent
 
     def initiate(self, opponent_name: Optional[str]):
         # Default values
@@ -68,17 +72,17 @@ class SAGAAgent(nenv.AbstractAgent):
             return False
 
         # Parameters
-        timeA = 0.6     # Time to start giving Accept rate below Target
-        timeB = 0.997   # Time to start giving Accept rate to all bids
+        timeA = 0.6  # Time to start giving Accept rate below Target
+        timeB = 0.997  # Time to start giving Accept rate to all bids
 
-        if time <= timeA:       # First Step
-            a = (util - target) / (1. - target + 1e-10)
+        if time <= timeA:  # First Step
+            a = (util - target) / (1.0 - target + 1e-10)
             b = math.pow(3, (0.5 - time) * 2)
 
             acceptProb = np.power(a, b)
 
             return self.rnd.random() < acceptProb
-        elif time >= timeB:     # Third Step
+        elif time >= timeB:  # Third Step
             acceptProb = math.pow(util, 2)
 
             return self.rnd.random() < acceptProb
@@ -88,11 +92,15 @@ class SAGAAgent(nenv.AbstractAgent):
         acceptBase = target - (1 - target) * (time - timeA) / (1 - timeA + 1e-10)
 
         if util > target:
-            acceptProb = APatT + (1 - APatT) * math.pow((util - target) / (1 - target + 1e-10), math.pow(3, (0.5 - time) * 2))
+            acceptProb = APatT + (1 - APatT) * math.pow(
+                (util - target) / (1 - target + 1e-10), math.pow(3, (0.5 - time) * 2)
+            )
 
             return self.rnd.random() < acceptProb
         elif util > acceptBase:
-            acceptProb = APatT * math.pow((util - acceptBase) / (target - acceptBase + 1e-10), 2)
+            acceptProb = APatT * math.pow(
+                (util - acceptBase) / (target - acceptBase + 1e-10), 2
+            )
 
             return self.rnd.random() < acceptProb
 

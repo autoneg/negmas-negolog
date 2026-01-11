@@ -22,6 +22,9 @@ class IAMhaggler(nenv.AbstractAgent):
     ANAC 2012 Nash category winner
 
     .. [Williams2012] Williams, C.R., Robu, V., Gerding, E.H., Jennings, N.R. (2012). IAMhaggler: A Negotiation Agent for Complex Environments. In: Ito, T., Zhang, M., Robu, V., Fatima, S., Matsuo, T. (eds) New Trends in Agent-Based Complex Automated Negotiations. Studies in Computational Intelligence, vol 383. Springer, Berlin, Heidelberg. <https://doi.org/10.1007/978-3-642-24696-8_10>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
 
     RISK_PARAMETER: float = 1.0  #: Default value of Risk Factor

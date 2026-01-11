@@ -10,10 +10,14 @@ from agents.CUHKAgent.OpponentBidHistory import OpponentBidHistory
 
 class CUHKAgent(nenv.AbstractAgent):
     """
-        ANAC 2012 Winner [Hao2014]_
+    ANAC 2012 Winner [Hao2014]_
 
-        .. [Hao2014] Hao, J., Leung, Hf. (2014). CUHKAgent: An Adaptive Negotiation Strategy for Bilateral Negotiations over Multiple Items. In: Marsa-Maestre, I., Lopez-Carmona, M., Ito, T., Zhang, M., Bai, Q., Fujita, K. (eds) Novel Insights in Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 535. Springer, Tokyo. <https://doi.org/10.1007/978-4-431-54758-7_11>
+    .. [Hao2014] Hao, J., Leung, Hf. (2014). CUHKAgent: An Adaptive Negotiation Strategy for Bilateral Negotiations over Multiple Items. In: Marsa-Maestre, I., Lopez-Carmona, M., Ito, T., Zhang, M., Bai, Q., Fujita, K. (eds) Novel Insights in Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 535. Springer, Tokyo. <https://doi.org/10.1007/978-4-431-54758-7_11>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     totalTime: float
     ActionOfOpponent: Optional[nenv.Action]
     maximumOfBid: float
@@ -61,7 +65,7 @@ class CUHKAgent(nenv.AbstractAgent):
         self.calculateBidsBetweenUtility()
         self.chooseConcedeToDiscountingDegree()
         self.opponentBidHistory.initializeDataStructures(self.preference)
-        self.timeLeftAfter = 0.
+        self.timeLeftAfter = 0.0
         self.concedeToOpponent = False
         self.toughAgent = False
         self.alpha1 = 2
@@ -85,7 +89,9 @@ class CUHKAgent(nenv.AbstractAgent):
             bid = self.bid_maximum_utility
             action = nenv.Offer(bid)
         else:
-            self.opponentBidHistory.updateOpponentModel(self.ActionOfOpponent.bid, self.preference)
+            self.opponentBidHistory.updateOpponentModel(
+                self.ActionOfOpponent.bid, self.preference
+            )
             self.updateConcedeDegree()
 
             if len(self.ownBidHistory.BidHistory) == 0:
@@ -94,7 +100,9 @@ class CUHKAgent(nenv.AbstractAgent):
             else:
                 if self.estimateRoundLeft(True, t) > 10:
                     bid = self.BidToOffer(t)
-                    IsAccept = self.AcceptOpponentOffer(self.ActionOfOpponent.bid, bid, t)
+                    IsAccept = self.AcceptOpponentOffer(
+                        self.ActionOfOpponent.bid, bid, t
+                    )
 
                     if IsAccept and self.can_accept():
                         action = self.accept_action
@@ -111,17 +119,23 @@ class CUHKAgent(nenv.AbstractAgent):
                         bid = self.opponentBidHistory.bid_maximum_from_opponent
 
                         if self.preference.get_utility(bid) < 0.85:
-                            candidateBids = self.getBidsBetweenUtility(self.MaximumUtility - 0.15, self.MaximumUtility - 0.02)
+                            candidateBids = self.getBidsBetweenUtility(
+                                self.MaximumUtility - 0.15, self.MaximumUtility - 0.02
+                            )
 
                             if self.estimateRoundLeft(True, t) < 2:
                                 bid = self.opponentBidHistory.bid_maximum_from_opponent
                             else:
-                                bid = self.opponentBidHistory.ChooseBid(candidateBids, self.preference)
+                                bid = self.opponentBidHistory.ChooseBid(
+                                    candidateBids, self.preference
+                                )
 
                             if bid is None:
                                 bid = self.opponentBidHistory.bid_maximum_from_opponent
 
-                        IsAccept = self.AcceptOpponentOffer(self.ActionOfOpponent.bid, bid, t)
+                        IsAccept = self.AcceptOpponentOffer(
+                            self.ActionOfOpponent.bid, bid, t
+                        )
 
                         if IsAccept and self.can_accept():
                             action = self.accept_action
@@ -132,7 +146,9 @@ class CUHKAgent(nenv.AbstractAgent):
                     else:
                         bid = self.BidToOffer(t)
 
-                        IsAccept = self.AcceptOpponentOffer(self.ActionOfOpponent.bid, bid, t)
+                        IsAccept = self.AcceptOpponentOffer(
+                            self.ActionOfOpponent.bid, bid, t
+                        )
 
                         if IsAccept and self.can_accept():
                             action = self.accept_action
@@ -141,7 +157,9 @@ class CUHKAgent(nenv.AbstractAgent):
 
         self.ownBidHistory.addBid(bid, self.preference)
         end_time = time.time()
-        self.timeLeftAfter = t + (end_time - start_time) / self.totalTime if self.totalTime > 0 else t
+        self.timeLeftAfter = (
+            t + (end_time - start_time) / self.totalTime if self.totalTime > 0 else t
+        )
         self.estimateRoundLeft(False, t)
 
         return action
@@ -152,27 +170,41 @@ class CUHKAgent(nenv.AbstractAgent):
         decreasingAmount_2 = 0.25
 
         maximumOfBid = self.MaximumUtility
-        minimumOfBid = 0.
+        minimumOfBid = 0.0
 
         if self.discountingFactor == 1 and self.maximumOfBid > 3000:
             minimumOfBid = self.MaximumUtility - decreasingAmount_1
 
-            if self.discountingFactor > 1 - decreasingAmount_2 and self.maximumOfBid > 10000 and t >= 0.98:
+            if (
+                self.discountingFactor > 1 - decreasingAmount_2
+                and self.maximumOfBid > 10000
+                and t >= 0.98
+            ):
                 minimumOfBid = self.MaximumUtility - decreasingAmount_2
             if self.utilityThreshold > minimumOfBid:
                 self.utilityThreshold = minimumOfBid
         else:
             if t <= self.concedeToDiscountingFactor:
-                minThershold = (maximumOfBid * self.discountingFactor) / math.pow(self.discountingFactor, self.concedeToDiscountingFactor)
+                minThershold = (maximumOfBid * self.discountingFactor) / math.pow(
+                    self.discountingFactor, self.concedeToDiscountingFactor
+                )
 
-                self.utilityThreshold = maximumOfBid - (maximumOfBid - minThershold) * math.pow(t / self.concedeToDiscountingFactor, self.alpha1)
+                self.utilityThreshold = maximumOfBid - (
+                    maximumOfBid - minThershold
+                ) * math.pow(t / self.concedeToDiscountingFactor, self.alpha1)
             else:
-                self.utilityThreshold = (maximumOfBid * self.discountingFactor) / math.pow(self.discountingFactor, t)
+                self.utilityThreshold = (
+                    maximumOfBid * self.discountingFactor
+                ) / math.pow(self.discountingFactor, t)
             minimumOfBid = self.utilityThreshold
 
         bestBidOfferedByOpponent = self.opponentBidHistory.bid_maximum_from_opponent
 
-        if self.preference.get_utility(bestBidOfferedByOpponent) >= self.utilityThreshold or self.preference.get_utility(bestBidOfferedByOpponent) >= minimumOfBid:
+        if (
+            self.preference.get_utility(bestBidOfferedByOpponent)
+            >= self.utilityThreshold
+            or self.preference.get_utility(bestBidOfferedByOpponent) >= minimumOfBid
+        ):
             return bestBidOfferedByOpponent
 
         candidateBids = self.getBidsBetweenUtility(minimumOfBid, maximumOfBid)
@@ -189,21 +221,42 @@ class CUHKAgent(nenv.AbstractAgent):
         maximumUtility = self.MaximumUtility
         nextRoundUtility = self.preference.get_utility(ownBid)
 
-        if currentUtility >= self.utilityThreshold or currentUtility >= nextRoundUtility:
+        if (
+            currentUtility >= self.utilityThreshold
+            or currentUtility >= nextRoundUtility
+        ):
             return True
 
         predictMaximumUtility = maximumUtility * self.discountingFactor
-        currentMaximumUtility = self.preference.get_utility(self.opponentBidHistory.bid_maximum_from_opponent)
+        currentMaximumUtility = self.preference.get_utility(
+            self.opponentBidHistory.bid_maximum_from_opponent
+        )
 
-        if currentMaximumUtility > predictMaximumUtility and t > self.concedeToDiscountingFactor:
-            if self.preference.get_utility(opponentBid) >= self.preference.get_utility(self.opponentBidHistory.bid_maximum_from_opponent) - 0.01:
+        if (
+            currentMaximumUtility > predictMaximumUtility
+            and t > self.concedeToDiscountingFactor
+        ):
+            if (
+                self.preference.get_utility(opponentBid)
+                >= self.preference.get_utility(
+                    self.opponentBidHistory.bid_maximum_from_opponent
+                )
+                - 0.01
+            ):
                 return True
             else:
                 self.concedeToOpponent = True
                 return False
-        elif currentMaximumUtility > self.utilityThreshold * math.pow(self.discountingFactor, t):
-            if self.preference.get_utility(opponentBid) >= self.preference.get_utility(
-                    self.opponentBidHistory.bid_maximum_from_opponent) - 0.01:
+        elif currentMaximumUtility > self.utilityThreshold * math.pow(
+            self.discountingFactor, t
+        ):
+            if (
+                self.preference.get_utility(opponentBid)
+                >= self.preference.get_utility(
+                    self.opponentBidHistory.bid_maximum_from_opponent
+                )
+                - 0.01
+            ):
                 return True
             else:
                 self.concedeToOpponent = True
@@ -222,7 +275,7 @@ class CUHKAgent(nenv.AbstractAgent):
         total_round = self.maximumTimeOfOpponent + self.maximumTimeOwn
 
         if total_round == 0:
-            return float('inf')
+            return float("inf")
 
         round = (self.totalTime - t * self.totalTime) // (total_round)
 
@@ -243,7 +296,11 @@ class CUHKAgent(nenv.AbstractAgent):
         if self.maximumOfBid < 20000:
             for bid in self.preference.bids:
                 for i in range(maximumRounds):
-                    if (i + 1) * 0.01 + minUtility >= self.preference.get_utility(bid) >= i * 0.01 + minUtility:
+                    if (
+                        (i + 1) * 0.01 + minUtility
+                        >= self.preference.get_utility(bid)
+                        >= i * 0.01 + minUtility
+                    ):
                         self.bidsBetweenUtility[i].append(bid.copy())
                         break
         else:
@@ -251,7 +308,11 @@ class CUHKAgent(nenv.AbstractAgent):
                 bid = self.preference.get_random_bid()
 
                 for i in range(maximumRounds):
-                    if (i + 1) * 0.01 + minUtility >= self.preference.get_utility(bid) >= i * 0.01 + minUtility:
+                    if (
+                        (i + 1) * 0.01 + minUtility
+                        >= self.preference.get_utility(bid)
+                        >= i * 0.01 + minUtility
+                    ):
                         self.bidsBetweenUtility[i].append(bid.copy())
                         break
 
@@ -275,7 +336,7 @@ class CUHKAgent(nenv.AbstractAgent):
         self.minimumUtilityThreshold = 0
 
     def chooseConcedeToDiscountingDegree(self):
-        alpha = 0.
+        alpha = 0.0
         beta = 1.5
 
         if self.discountingFactor > 0.75:
@@ -287,15 +348,23 @@ class CUHKAgent(nenv.AbstractAgent):
 
         alpha = math.pow(self.discountingFactor, beta)
 
-        self.concedeToDiscountingFactor = self.minConcedeToDiscountingFactor + (1 - self.minConcedeToDiscountingFactor) * alpha
+        self.concedeToDiscountingFactor = (
+            self.minConcedeToDiscountingFactor
+            + (1 - self.minConcedeToDiscountingFactor) * alpha
+        )
         self.concedeToDiscountingFactor_original = self.concedeToDiscountingFactor
 
     def updateConcedeDegree(self):
-        gama = 10.
+        gama = 10.0
         weight = 0.1
         opponentToughnessDegree = self.opponentBidHistory.getConcessionDegree()
 
-        self.concedeToDiscountingFactor = self.concedeToDiscountingFactor_original + weight * (1 - self.concedeToDiscountingFactor_original) * math.pow(opponentToughnessDegree, gama)
+        self.concedeToDiscountingFactor = (
+            self.concedeToDiscountingFactor_original
+            + weight
+            * (1 - self.concedeToDiscountingFactor_original)
+            * math.pow(opponentToughnessDegree, gama)
+        )
 
         if self.concedeToDiscountingFactor >= 1:
             self.concedeToDiscountingFactor = 1

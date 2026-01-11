@@ -10,16 +10,20 @@ from nenv import Action, Bid
 
 class LuckyAgent2022(nenv.AbstractAgent):
     """
-        **LuckAgent2022 by Arash Ebrahimnezhad**:
-            LuckyAgent2022 has BOA components and its learning methods over negotiation sessions. To improve its utility
-            over sessions, it proposes SLM, a LSN Stop-Learning mechanism, to prevent overfitting by adapting it to a
-            multi-armed bandit problem. It finds the best value for variables of a time-dependent bidding strategy for
-            the opponent. [Ebrahimnezhad2022]_
+    **LuckAgent2022 by Arash Ebrahimnezhad**:
+        LuckyAgent2022 has BOA components and its learning methods over negotiation sessions. To improve its utility
+        over sessions, it proposes SLM, a LSN Stop-Learning mechanism, to prevent overfitting by adapting it to a
+        multi-armed bandit problem. It finds the best value for variables of a time-dependent bidding strategy for
+        the opponent. [Ebrahimnezhad2022]_
 
-        ANAC 2022 individual utility category runner-up.
+    ANAC 2022 individual utility category runner-up.
 
-        .. [Ebrahimnezhad2022]  A. Ebrahimnezhad and F. Nassiri-Mofakham, LuckyAgent2022: A Stop-Learning Multi-Armed Bandit Automated Negotiating Agent. 2022 13th International Conference on Information and Knowledge Technology (IKT), Karaj, Iran, Islamic Republic of, 2022, pp. 1-6, doi: 10.1109/IKT57960.2022.10039035.
+    .. [Ebrahimnezhad2022]  A. Ebrahimnezhad and F. Nassiri-Mofakham, LuckyAgent2022: A Stop-Learning Multi-Armed Bandit Automated Negotiating Agent. 2022 13th International Conference on Information and Knowledge Technology (IKT), Karaj, Iran, Islamic Republic of, 2022, pp. 1-6, doi: 10.1109/IKT57960.2022.10039035.
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     alpha: float
     betta: float
     NUMBER_OF_GOALS: int = 5
@@ -92,18 +96,32 @@ class LuckyAgent2022(nenv.AbstractAgent):
         reservation = self.preference.reservation_value
 
         received_bid_utility = self.preference.get_utility(received_bid)
-        condition1 = received_bid_utility >= self.threshold_acceptance and received_bid_utility >= reservation
-        condition2 = progress > 0.97 and received_bid_utility > self.min and received_bid_utility >= reservation
-        condition3 = self.alpha * float(received_bid_utility) + self.betta >= self.preference.get_utility(next_bid) and received_bid_utility >= reservation
+        condition1 = (
+            received_bid_utility >= self.threshold_acceptance
+            and received_bid_utility >= reservation
+        )
+        condition2 = (
+            progress > 0.97
+            and received_bid_utility > self.min
+            and received_bid_utility >= reservation
+        )
+        condition3 = (
+            self.alpha * float(received_bid_utility) + self.betta
+            >= self.preference.get_utility(next_bid)
+            and received_bid_utility >= reservation
+        )
 
         return condition1 or condition2 or condition3
 
     def cal_thresholds(self, t: float):
         progress = t
         self.threshold_high = self.p(self.min + 0.1, self.max, self.e, progress)
-        self.threshold_acceptance = self.p(self.min + 0.1, self.max, self.e, progress) - (0.1 * (progress + 0.0000001))
-        self.threshold_low = self.p(self.min + 0.1, self.max, self.e, progress) - (0.1 * (
-                    progress + 0.0000001)) * abs(math.sin(progress * 60))
+        self.threshold_acceptance = self.p(
+            self.min + 0.1, self.max, self.e, progress
+        ) - (0.1 * (progress + 0.0000001))
+        self.threshold_low = self.p(self.min + 0.1, self.max, self.e, progress) - (
+            0.1 * (progress + 0.0000001)
+        ) * abs(math.sin(progress * 60))
 
     def find_bid(self) -> Bid:
         """
@@ -118,13 +136,14 @@ class LuckyAgent2022(nenv.AbstractAgent):
             utility_goals.append(self.threshold_low + s * i)
         utility_goals.append(self.threshold_high)
 
-        options = self.preference.get_bids_at(random.choice(utility_goals), lower_bound=0.01, upper_bound=0.01)
+        options = self.preference.get_bids_at(
+            random.choice(utility_goals), lower_bound=0.01, upper_bound=0.01
+        )
 
         opponent_utilities = []
         for option in options:
             if self.opponent_model != None:
-                opp_utility = float(
-                    self.opponent_model.preference.get_utility(option))
+                opp_utility = float(self.opponent_model.preference.get_utility(option))
                 if opp_utility > 0:
                     opponent_utilities.append(opp_utility)
                 else:
@@ -134,7 +153,9 @@ class LuckyAgent2022(nenv.AbstractAgent):
 
         if len(options) == 0:
             # if we can't find good bid, get max util bid....
-            options = self.preference.get_bids_at(self.preference.bids[0].utility, lower_bound=0.01, upper_bound=0.01)
+            options = self.preference.get_bids_at(
+                self.preference.bids[0].utility, lower_bound=0.01, upper_bound=0.01
+            )
 
             return options[random.randint(0, len(options) - 1)]
         # pick a random one.
@@ -142,7 +163,9 @@ class LuckyAgent2022(nenv.AbstractAgent):
         next_bid = random.choices(list(options), weights=opponent_utilities)[0]
 
         for bid_detaile in self.last_received_bids:
-            if self.preference.get_utility(bid_detaile) >= self.preference.get_utility(next_bid):
+            if self.preference.get_utility(bid_detaile) >= self.preference.get_utility(
+                next_bid
+            ):
                 next_bid = bid_detaile
 
         return random.choices(options, weights=opponent_utilities)[0]

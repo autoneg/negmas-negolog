@@ -6,27 +6,31 @@ import nenv
 
 class Rubick(nenv.AbstractAgent):
     """
-        **Rubick by Okan Tunalı**:
-            Rubick Agent is a complex time-based conceder enriched by derivations of well studied heuristics in
-            automated negotiation field. The main component of the agent is the target utility, which is actually
-            lower boundary in the bid generation and in acceptance condition. If the history is not available yet,
-            target utility is initialized as the utility of the first received bid and updated to the highest utility
-            received from any of the opponent parties. On the other hand, if it detects a negotiation history with the
-            same opponents, it sets the lower bound to be the highest utility ever received throughout the negotiation;
-            thinking that the opponents will be designed in a myopic way. Both bid generation and acceptance strategies
-            include randomness; they follow a *Boulware* strategy but the pace of concession is randomized. Technically,
-            they sample from one-sided Gaussian distributions whose standard deviation increase over time, increasing
-            the likelihood of sending bids close to lower boundary. The opponent model resolves the bids into issue
-            evaluation values and considering their occurrence frequencies, searches forbids that holds the target
-            utility requirements while having the most common values. That is, it employs a frequency-based opponent
-            modeling. Finally, the model keeps a list of bids accepted by only one of the opponents in the previous
-            negotiations, which is sorted according to the gained utility by the Rubick agent. Elements of this list
-            is used in bid generation only if there is almost no time left. [Aydogan2021]_
+    **Rubick by Okan Tunalı**:
+        Rubick Agent is a complex time-based conceder enriched by derivations of well studied heuristics in
+        automated negotiation field. The main component of the agent is the target utility, which is actually
+        lower boundary in the bid generation and in acceptance condition. If the history is not available yet,
+        target utility is initialized as the utility of the first received bid and updated to the highest utility
+        received from any of the opponent parties. On the other hand, if it detects a negotiation history with the
+        same opponents, it sets the lower bound to be the highest utility ever received throughout the negotiation;
+        thinking that the opponents will be designed in a myopic way. Both bid generation and acceptance strategies
+        include randomness; they follow a *Boulware* strategy but the pace of concession is randomized. Technically,
+        they sample from one-sided Gaussian distributions whose standard deviation increase over time, increasing
+        the likelihood of sending bids close to lower boundary. The opponent model resolves the bids into issue
+        evaluation values and considering their occurrence frequencies, searches forbids that holds the target
+        utility requirements while having the most common values. That is, it employs a frequency-based opponent
+        modeling. Finally, the model keeps a list of bids accepted by only one of the opponents in the previous
+        negotiations, which is sorted according to the gained utility by the Rubick agent. Elements of this list
+        is used in bid generation only if there is almost no time left. [Aydogan2021]_
 
-        ANAC 2017 individual utility category finalist.
+    ANAC 2017 individual utility category finalist.
 
-        .. [Aydogan2021] Reyhan Aydoğan, Katsuhide Fujita, Tim Baarslag, Catholijn M. Jonker, and Takayuki Ito. ANAC 2017: Repeated multilateral negotiation league. In Advances in Auto- mated Negotiations, pages 101–115, Singapore, 2021. Springer Singapore.
+    .. [Aydogan2021] Reyhan Aydoğan, Katsuhide Fujita, Tim Baarslag, Catholijn M. Jonker, and Takayuki Ito. ANAC 2017: Repeated multilateral negotiation league. In Advances in Auto- mated Negotiations, pages 101–115, Singapore, 2021. Springer Singapore.
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     lastReceivedBid: nenv.Bid  # Last received bid
     history: List[nenv.Bid]  # Negotiation history of the previous negotiation session
     parties: List[str]  # List of part names
@@ -62,7 +66,7 @@ class Rubick(nenv.AbstractAgent):
         self.numberOfReceivedOffer = 0
         self.profileOrder = []
         self.opponentNames = ["", ""]
-        self.acceptanceLimits = [0., 0.]
+        self.acceptanceLimits = [0.0, 0.0]
         self.lastpartyname = ""
         self.bestAcceptedBids = []
         self.threshold = self.preference.reservation_value
@@ -106,7 +110,9 @@ class Rubick(nenv.AbstractAgent):
 
         # Update maximum received utility
         if self.maxReceivedBidutil < self.preference.get_utility(self.lastReceivedBid):
-            self.maxReceivedBidutil = self.preference.get_utility(self.lastReceivedBid) * 0.95
+            self.maxReceivedBidutil = (
+                self.preference.get_utility(self.lastReceivedBid) * 0.95
+            )
 
         self.numberOfReceivedOffer += 1
 
@@ -119,7 +125,11 @@ class Rubick(nenv.AbstractAgent):
         if "Opponent" not in self.parties:
             self.sortPartyProfiles("Opponent")
 
-        if len(self.parties) >= 3 and len(self.history) != 0 and not self.isHistoryAnalyzed:
+        if (
+            len(self.parties) >= 3
+            and len(self.history) != 0
+            and not self.isHistoryAnalyzed
+        ):
             self.analyzeHistory()
 
     def act(self, t: float) -> nenv.Action:
@@ -159,7 +169,7 @@ class Rubick(nenv.AbstractAgent):
         pow = self.takeTheChange(self.maxReceivedBidutil)
 
         # Get a random target utility
-        targetUtil = 1 - (math.pow(t, pow) * abs(random.gauss(0, 1) / 3.))
+        targetUtil = 1 - (math.pow(t, pow) * abs(random.gauss(0, 1) / 3.0))
 
         if self.numberOfReceivedOffer < 2:  # Do not accept in first two rounds
             return 1
@@ -173,15 +183,19 @@ class Rubick(nenv.AbstractAgent):
             upperLimit *= 0.9
             pow = self.takeTheChange(upperLimit)
 
-            targetUtil = 1 - (math.pow(t, pow) * abs(random.gauss(0, 1) / 3.))
+            targetUtil = 1 - (math.pow(t, pow) * abs(random.gauss(0, 1) / 3.0))
             targetUtil = upperLimit + (1 - upperLimit) * targetUtil
         else:
             if self.maxReceivedBidutil < 0.8:
                 self.maxReceivedBidutil = 0.8
 
-            targetUtil = self.maxReceivedBidutil + (1 - self.maxReceivedBidutil) * targetUtil
+            targetUtil = (
+                self.maxReceivedBidutil + (1 - self.maxReceivedBidutil) * targetUtil
+            )
 
-        if self.preference.get_utility(self.lastReceivedBid) > targetUtil or t > 0.999:  # Acceptance conditions
+        if (
+            self.preference.get_utility(self.lastReceivedBid) > targetUtil or t > 0.999
+        ):  # Acceptance conditions
             return -1
 
         return targetUtil
@@ -237,7 +251,7 @@ class Rubick(nenv.AbstractAgent):
         :param targetUtil: Target utility
         :return: Selected bid
         """
-        bu = 0.
+        bu = 0.0
         valu = None
 
         intersection = []
@@ -246,7 +260,9 @@ class Rubick(nenv.AbstractAgent):
         for bid in self.preference.bids:
             bu = bid.utility
 
-            if bu >= targetUtil:  # The selected bid must have a higher utility value than the target utility.
+            if (
+                bu >= targetUtil
+            ):  # The selected bid must have a higher utility value than the target utility.
                 score = 0
 
                 # Count intersection values
@@ -346,7 +362,7 @@ class Rubick(nenv.AbstractAgent):
         if len(valFreqs) % 2 == 1:
             return valFreqs[middle]
         else:
-            return (valFreqs[middle - 1] + valFreqs[middle]) / 2.
+            return (valFreqs[middle - 1] + valFreqs[middle]) / 2.0
 
     def analyzeHistory(self):
         """

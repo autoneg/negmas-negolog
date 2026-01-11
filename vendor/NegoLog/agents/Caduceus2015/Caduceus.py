@@ -9,11 +9,15 @@ from agents.Caduceus2015.SaneUtilitySpace import SaneUtilitySpace
 
 class Caduceus2015(nenv.AbstractAgent):
     """
-        **Caduceus agent by Taha Güneş**:
-            This agent is developed as a sub-agent for Caduceus agent. [Gunes2017]_
+    **Caduceus agent by Taha Güneş**:
+        This agent is developed as a sub-agent for Caduceus agent. [Gunes2017]_
 
-        .. [Gunes2017] Güneş, T.D., Arditi, E., Aydoğan, R. (2017). Collective Voice of Experts in Multilateral Negotiation. In: An, B., Bazzan, A., Leite, J., Villata, S., van der Torre, L. (eds) PRIMA 2017: Principles and Practice of Multi-Agent Systems. PRIMA 2017. Lecture Notes in Computer Science(), vol 10621. Springer, Cham. <https://doi.org/10.1007/978-3-319-69131-2_27>
+    .. [Gunes2017] Güneş, T.D., Arditi, E., Aydoğan, R. (2017). Collective Voice of Experts in Multilateral Negotiation. In: An, B., Bazzan, A., Leite, J., Villata, S., van der Torre, L. (eds) PRIMA 2017: Principles and Practice of Multi-Agent Systems. PRIMA 2017. Lecture Notes in Computer Science(), vol 10621. Springer, Cham. <https://doi.org/10.1007/978-3-319-69131-2_27>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     discountFactor: float
     numberOfOpponents: int
     selfReservationValue: float
@@ -26,7 +30,7 @@ class Caduceus2015(nenv.AbstractAgent):
     opponentMap: Dict[str, Opponent]
 
     def initiate(self, opponent_name: Optional[str]):
-        self.discountFactor = 1.
+        self.discountFactor = 1.0
         self.selfReservationValue = max(self.preference.reservation_value, 0.75)
         self.percentageOfOfferringBestBid = 0.83 * self.discountFactor
         self.numberOfOpponents = 1
@@ -52,7 +56,11 @@ class Caduceus2015(nenv.AbstractAgent):
                 if self.preference.get_utility(bid) < self.selfReservationValue:
                     bid = self.preference.get_random_bid()
 
-                if self.can_accept() and self.preference.get_utility(self.previousBid) > self.preference.get_utility(bid) + 0.2:
+                if (
+                    self.can_accept()
+                    and self.preference.get_utility(self.previousBid)
+                    > self.preference.get_utility(bid) + 0.2
+                ):
                     return self.accept_action
 
             return nenv.Offer(bid)
@@ -124,4 +132,3 @@ class Caduceus2015(nenv.AbstractAgent):
         roundValue = (2 * math.pow(t, 2)) - (101 * t) + 100
 
         return float("%.3f" % roundValue)
-

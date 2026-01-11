@@ -43,7 +43,7 @@ NegoLog was presented at **IJCAI 2024**. If you use this package, please cite th
 
 ## Features
 
-- **25 NegoLog agents** available as NegMAS negotiators
+- **26 NegoLog agents** available as NegMAS negotiators
 - **Seamless integration** with NegMAS mechanisms and tournaments
 - **Full compatibility** with NegMAS utility functions and outcome spaces
 - **Zero configuration** - agents work out of the box
@@ -118,40 +118,38 @@ else:
 
 ## Available Agents
 
-### Time-Based Concession Agents
+The following table lists all 26 available agents with their ANAC competition results and references.
 
-| Agent | Description |
-|-------|-------------|
-| `BoulwareAgent` | Concedes slowly (sub-linearly), using Bezier curve-based target utility |
-| `ConcederAgent` | Concedes quickly (super-linearly) |
-| `LinearAgent` | Concedes linearly over time |
+> **Note:** Agent descriptions were AI-generated based on the referenced papers and source code analysis.
 
-### ANAC Competition Agents
-
-| Agent | Description |
-|-------|-------------|
-| `Atlas3Agent` | ANAC 2015 competition winner |
-| `HardHeaded` | ANAC 2011 competition winner, uses frequency-based opponent modeling |
-| `NiceTitForTat` | Tit-for-tat strategy aiming for Nash point, uses Bayesian opponent modeling |
-| `AgentGG` | ANAC competition agent |
-| `AgentKN` | ANAC competition agent |
-| `AgentBuyog` | ANAC competition agent |
-| `AhBuNeAgent` | ANAC competition agent |
-| `Caduceus` | ANAC competition agent |
-| `Caduceus2015` | ANAC 2015 competition agent |
-| `CUHKAgent` | ANAC agent from Chinese University of Hong Kong |
-| `HybridAgent` | Combines multiple negotiation strategies |
-| `IAMhaggler` | ANAC agent from University of Southampton |
-| `Kawaii` | ANAC competition agent |
-| `LuckyAgent2022` | ANAC 2022 competition agent |
-| `MICROAgent` | ANAC agent using opponent modeling |
-| `ParsAgent` | ANAC agent from Amirkabir University |
-| `ParsCatAgent` | ANAC agent from Amirkabir University |
-| `PonPokoAgent` | ANAC competition agent |
-| `RandomDance` | ANAC competition agent |
-| `Rubick` | ANAC competition agent |
-| `SAGAAgent` | Uses genetic algorithm for bid selection |
-| `YXAgent` | ANAC competition agent |
+| Agent | Competition | Algorithm Summary | Reference |
+|-------|-------------|-------------------|-----------|
+| `Atlas3Agent` | ANAC 2015 Winner | Utility-based bid search with frequency-based opponent modeling and evolutionary stable strategy concession | [Mori & Ito 2017](https://doi.org/10.1007/978-3-319-51563-2_11) |
+| `HardHeaded` | ANAC 2011 Winner | Hardheaded concession with frequency-based opponent preference learning | [van Krimpen et al. 2013](https://doi.org/10.1007/978-3-642-30737-9_17) |
+| `CUHKAgent` | ANAC 2012 Winner | Adaptive negotiation strategy for bilateral multi-item negotiations | [Hao & Leung 2014](https://doi.org/10.1007/978-4-431-54758-7_11) |
+| `Caduceus` | ANAC 2016 Winner | Portfolio/mixture of experts combining multiple negotiation agents | [Güneş et al. 2017](https://doi.org/10.1007/978-3-319-69131-2_27) |
+| `PonPokoAgent` | ANAC 2017 Winner | Multiple random bidding strategies to prevent opponent prediction | [Aydoğan et al. 2021](https://link.springer.com/chapter/10.1007/978-981-16-0471-3_7) |
+| `AgentGG` | ANAC 2019 Winner | Frequentist opponent model with importance-based bid selection | [Aydoğan et al. 2020](https://doi.org/10.1007/978-3-030-66412-1_23) |
+| `AhBuNeAgent` | ANAC 2020 Winner | Heuristic bidding with Importance Map opponent model | [Yıldırım et al. 2023](https://doi.org/10.1007/978-981-99-0561-4_6) |
+| `AgentBuyog` | ANAC 2015 Runner-up | Opponent concession function estimation | [Fujita et al. 2017](https://doi.org/10.1007/978-3-319-51563-2_9) |
+| `Kawaii` | ANAC 2015 Runner-up | Time-based concession strategy | [Baarslag et al. 2015](https://doi.org/10.1609/aimag.v36i4.2609) |
+| `ParsCatAgent` | ANAC 2016 Runner-up | Time-dependent bidding with adaptive thresholds | [Aydoğan et al. 2021](https://link.springer.com/chapter/10.1007/978-981-16-0471-3_7) |
+| `YXAgent` | ANAC 2016 Runner-up | Frequency-based opponent modeling | [Aydoğan et al. 2021](https://link.springer.com/chapter/10.1007/978-981-16-0471-3_7) |
+| `LuckyAgent2022` | ANAC 2022 Runner-up | BOA components with stop-learning multi-armed bandit mechanism | [Ebrahimnezhad & Nassiri-Mofakham 2022](https://doi.org/10.1109/IKT57960.2022.10039035) |
+| `MICROAgent` | ANAC 2022 Runner-up | Concedes only when opponent concedes | [de Jonge 2022](https://www.ijcai.org/proceedings/2022/32) |
+| `IAMhaggler` | ANAC 2012 Nash Winner | Gaussian Process prediction for opponent concession | [Williams et al. 2012](https://doi.org/10.1007/978-3-642-24696-8_10) |
+| `AgentKN` | ANAC 2017 Nash Finalist | Simulated Annealing bid search with frequency-based scoring | [Aydoğan et al. 2021](https://link.springer.com/chapter/10.1007/978-981-16-0471-3_7) |
+| `ParsAgent` | ANAC 2015 Finalist | Hybrid time-dependent, random and frequency-based strategy | [Khosravimehr & Nassiri-Mofakham 2017](https://doi.org/10.1007/978-3-319-51563-2_12) |
+| `RandomDance` | ANAC 2015 Finalist | Weighted function opponent modeling with random selection | [Kakimoto & Fujita 2017](https://doi.org/10.1007/978-3-319-51563-2_13) |
+| `Rubick` | ANAC 2017 Finalist | Time-based conceder with frequency-based opponent model | [Aydoğan et al. 2021](https://link.springer.com/chapter/10.1007/978-981-16-0471-3_7) |
+| `SAGAAgent` | ANAC 2019 Finalist | Genetic Algorithm for self-preference estimation | [Aydoğan et al. 2020](https://doi.org/10.1007/978-3-030-66412-1_23) |
+| `NiceTitForTat` | — | Tit-for-tat with Bayesian opponent model aiming for Nash point | [Baarslag et al. 2013](https://link.springer.com/chapter/10.1007/978-3-642-30737-9_14) |
+| `BoulwareAgent` | — | Time-based concession (slow, sub-linear) using Bezier curves | [Faratin et al. 1998](https://doi.org/10.1016/S0921-8890(98)00026-0) |
+| `ConcederAgent` | — | Time-based concession (fast, super-linear) | [Faratin et al. 1998](https://doi.org/10.1016/S0921-8890(98)00026-0) |
+| `LinearAgent` | — | Time-based concession (linear) | [Faratin et al. 1998](https://doi.org/10.1016/S0921-8890(98)00026-0) |
+| `HybridAgent` | — | Combines Time-Based and Behavior-Based strategies | [Keskin et al. 2021](https://dl.acm.org/doi/10.5555/3463952.3464182) |
+| `HybridAgentWithOppModel` | — | Hybrid Agent extended with opponent modeling | [Yesevi et al. 2023](https://doi.org/10.1007/978-3-031-21203-1_23) |
+| `Caduceus2015` | — | Sub-agent for Caduceus portfolio | [Güneş et al. 2017](https://doi.org/10.1007/978-3-319-69131-2_27) |
 
 ## Mixing with NegMAS Agents
 
@@ -249,6 +247,29 @@ uv run pytest tests/test_wrapper.py -v      # Wrapper functionality tests
 uv run pytest tests/test_equivalence.py -v  # Native vs wrapped comparison tests
 ```
 
+### Behavior Comparison
+
+The project includes a comprehensive behavior comparison script that tests all 25 agents in both native NegoLog and wrapped NegMAS environments. This helps verify that wrapped agents behave equivalently to their native counterparts.
+
+```bash
+# Run the behavior comparison
+uv run python scripts/compare_behavior.py
+```
+
+The script generates reports in the `reports/` directory:
+
+- `behavior_comparison_report.md` - Human-readable Markdown report
+- `behavior_comparison_report.json` - Machine-readable JSON data
+
+The comparison tests each agent against a Boulware opponent and measures:
+
+- **Agreement consistency** - Whether both environments reach the same agreement outcome
+- **Round count similarity** - How close the negotiation lengths are
+- **Utility equivalence** - Whether final utilities match when both agree
+- **First offer similarity** - Whether agents start with the same initial offer
+
+See the [latest comparison report](reports/behavior_comparison_report.md) for current results.
+
 ## Architecture
 
 ```
@@ -259,6 +280,11 @@ negmas-negolog/
 ├── vendor/NegoLog/      # Vendored NegoLog library
 │   ├── agents/          # NegoLog agent implementations
 │   └── nenv/            # NegoLog environment
+├── scripts/
+│   └── compare_behavior.py  # Behavior comparison script
+├── reports/             # Generated comparison reports
+│   ├── behavior_comparison_report.md
+│   └── behavior_comparison_report.json
 └── tests/
     ├── test_wrapper.py      # Wrapper tests
     └── test_equivalence.py  # Equivalence tests

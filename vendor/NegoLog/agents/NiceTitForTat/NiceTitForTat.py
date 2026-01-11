@@ -9,16 +9,20 @@ from nenv.OpponentModel import BayesianOpponentModel
 
 class NiceTitForTat(nenv.AbstractAgent):
     """
-        **NiceTitForTat agent by Tim Baarslag**:
-            The Nice Tit for Tat agent plays a tit for tat strategy with respect to its own utility.
-            The agent will initially cooperate, then respond in kind to the opponent’s previous
-            action, while aiming for the Nash point of the negotiation scenario. After each move
-            by the opponent, it updates its Bayesian opponent model to make sure it responds
-            with a nice move to a concession by the opponent. [Baarslag2013]_
+    **NiceTitForTat agent by Tim Baarslag**:
+        The Nice Tit for Tat agent plays a tit for tat strategy with respect to its own utility.
+        The agent will initially cooperate, then respond in kind to the opponent's previous
+        action, while aiming for the Nash point of the negotiation scenario. After each move
+        by the opponent, it updates its Bayesian opponent model to make sure it responds
+        with a nice move to a concession by the opponent. [Baarslag2013]_
 
-        .. [Baarslag2013] Tim Baarslag, Koen Hindriks, and Catholijn Jonker. A tit for tat negotiation strategy for real-time bilateral negotiations. Studies in Computational Intelligence, 435:229–233, 2013.
+    .. [Baarslag2013] Tim Baarslag, Koen Hindriks, and Catholijn Jonker. A tit for tat negotiation strategy for real-time bilateral negotiations. Studies in Computational Intelligence, 435:229–233, 2013.
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
 
     """
+
     TIME_USED_TO_DETERMINE_OPPONENT_STARTING_POINT: float = 0.01
     NASH_POINT_UPDATE_RATE = 0.5
     myHistory: BidHistory
@@ -38,8 +42,8 @@ class NiceTitForTat(nenv.AbstractAgent):
         self.opponentHistory = BidHistory()
         self.random100 = random.Random()
         self.offeredOpponentBestBid = 0
-        self.myNashUtility = 0.
-        self.initialGap = 0.
+        self.myNashUtility = 0.0
+        self.initialGap = 0.0
         self.opponent_model = BayesianOpponentModel(self.preference)
 
     def receive_offer(self, bid: Bid, t: float):
@@ -54,7 +58,9 @@ class NiceTitForTat(nenv.AbstractAgent):
             return nenv.Offer(opening_bid)
 
         if len(self.myHistory.history) == 0:
-            self.myHistory.history.append(BidDetails(opening_bid, opening_bid.utility, t))
+            self.myHistory.history.append(
+                BidDetails(opening_bid, opening_bid.utility, t)
+            )
             return nenv.Offer(opening_bid)
 
         counter_bid = self.chooseCounterBid(t)
@@ -62,29 +68,41 @@ class NiceTitForTat(nenv.AbstractAgent):
         if self.isAcceptable(counter_bid, t) and self.can_accept():
             return self.makeAcceptAction(t)
 
-        self.myHistory.history.append(BidDetails(counter_bid, self.get_utility(counter_bid), t))
+        self.myHistory.history.append(
+            BidDetails(counter_bid, self.get_utility(counter_bid), t)
+        )
 
         return nenv.Offer(counter_bid)
 
     def get_utility(self, b: nenv.Bid) -> float:
         if b is None:
-            return 0.
+            return 0.0
 
         return self.preference.get_utility(b)
 
     def chooseCounterBid(self, t: float):
-        opponent_last_bid = self.opponentHistory.history[-1].bid if len(self.opponentHistory.history) else None
+        opponent_last_bid = (
+            self.opponentHistory.history[-1].bid
+            if len(self.opponentHistory.history)
+            else None
+        )
 
         if self.canUpdateBeliefs(t) and (
-                self.random100.random() < self.NASH_POINT_UPDATE_RATE or self.myNashUtility == 0.):
+            self.random100.random() < self.NASH_POINT_UPDATE_RATE
+            or self.myNashUtility == 0.0
+        ):
             self.update_my_nash_utility()
 
         my_utility_of_opponent_last_bid = self.get_utility(opponent_last_bid)
         maximum_offered_utility_by_opponent = self.opponentHistory.getMaximumUtility()
         minimum_offered_utility_by_opponent = self.opponentHistory.getMinumumUtility()
-        min_utility_of_opponent_first_bids = self.getMinimumUtilityOfOpponentFirstBids(my_utility_of_opponent_last_bid)
+        min_utility_of_opponent_first_bids = self.getMinimumUtilityOfOpponentFirstBids(
+            my_utility_of_opponent_last_bid
+        )
 
-        opponent_concession = maximum_offered_utility_by_opponent - min_utility_of_opponent_first_bids
+        opponent_concession = (
+            maximum_offered_utility_by_opponent - min_utility_of_opponent_first_bids
+        )
 
         denominator = self.myNashUtility - min_utility_of_opponent_first_bids
         if denominator == 0:
@@ -93,10 +111,10 @@ class NiceTitForTat(nenv.AbstractAgent):
             opponent_concede_factor = min(1, opponent_concession / denominator)
 
         my_concession = opponent_concede_factor * (1 - self.myNashUtility)
-        my_current_target_utility = 1. - my_concession
+        my_current_target_utility = 1.0 - my_concession
 
         self.initialGap = 1 - min_utility_of_opponent_first_bids
-        gap_to_nash = max(0., my_current_target_utility - self.myNashUtility)
+        gap_to_nash = max(0.0, my_current_target_utility - self.myNashUtility)
 
         bonus = self.get_bonus(t)
         tit = bonus * gap_to_nash
@@ -124,7 +142,7 @@ class NiceTitForTat(nenv.AbstractAgent):
         discount_bonus = 0.5 - 0.4 * discount_factor
 
         is_bid_domain = self.domain_size > 3000
-        time_bonus = 0.
+        time_bonus = 0.0
 
         minTime = 0.91
 
@@ -132,11 +150,11 @@ class NiceTitForTat(nenv.AbstractAgent):
             minTime = 0.85
 
         if t > minTime:
-            time_bonus = min(1., 20 * (t - minTime))
+            time_bonus = min(1.0, 20 * (t - minTime))
 
         bonus = max(discount_bonus, time_bonus)
 
-        return min(1., max(0., bonus))
+        return min(1.0, max(0.0, bonus))
 
     def update_my_nash_utility(self):
         self.myNashUtility = 0.7
@@ -148,15 +166,15 @@ class NiceTitForTat(nenv.AbstractAgent):
 
         self.myNashUtility *= nash_multipler
 
-        self.myNashUtility = min(1., max(0.5, self.myNashUtility))
+        self.myNashUtility = min(1.0, max(0.5, self.myNashUtility))
 
     def get_estimated_nash_utility(self) -> float:
         """
             This method finds the utility of the agent where the estimated Nash product is maximum.
         :return: The utility of the agent
         """
-        best_nash_product = 0.
-        best_utility_me = 0.
+        best_nash_product = 0.0
+        best_utility_me = 0.0
 
         opp_preference = self.opponent_model.preference
 
@@ -175,12 +193,14 @@ class NiceTitForTat(nenv.AbstractAgent):
     def get_nash_multiplier(self, gap: float):
         mult = 1.4 - 0.6 * gap
 
-        return max(0., mult)
+        return max(0.0, mult)
 
     def getMinimumUtilityOfOpponentFirstBids(self, myUtilityOfOpponentLastBid: float):
-        firstBids = self.opponentHistory.filterBetweenTime(0, self.TIME_USED_TO_DETERMINE_OPPONENT_STARTING_POINT)
+        firstBids = self.opponentHistory.filterBetweenTime(
+            0, self.TIME_USED_TO_DETERMINE_OPPONENT_STARTING_POINT
+        )
 
-        first_bids_min_utility = 0.
+        first_bids_min_utility = 0.0
 
         if len(firstBids.history) == 0:
             first_bids_min_utility = self.opponentHistory.history[0].utility
@@ -204,7 +224,11 @@ class NiceTitForTat(nenv.AbstractAgent):
         return self.preference.bids[0]
 
     def isAcceptable(self, plannedBid: nenv.Bid, t: float):
-        opponent_last_bid = self.opponentHistory.history[-1].bid if len(self.opponentHistory.history) else None
+        opponent_last_bid = (
+            self.opponentHistory.history[-1].bid
+            if len(self.opponentHistory.history)
+            else None
+        )
         my_next_bid = plannedBid
 
         if self.get_utility(opponent_last_bid) >= self.get_utility(my_next_bid):
@@ -228,7 +252,9 @@ class NiceTitForTat(nenv.AbstractAgent):
             return False
 
         window = time_left
-        recent_better_bids = self.opponentHistory.filterBetween(offered_utility, 1, t - window, t)
+        recent_better_bids = self.opponentHistory.filterBetween(
+            offered_utility, 1, t - window, t
+        )
         n = len(recent_better_bids.history)
 
         if window == 0:
@@ -254,7 +280,11 @@ class NiceTitForTat(nenv.AbstractAgent):
         return False
 
     def makeAcceptAction(self, t: float):
-        opponent_last_bid = self.opponentHistory.history[-1].bid if len(self.opponentHistory.history) else None
+        opponent_last_bid = (
+            self.opponentHistory.history[-1].bid
+            if len(self.opponentHistory.history)
+            else None
+        )
         offered_utility = self.get_utility(opponent_last_bid)
 
         time_left = 1 - t
@@ -262,7 +292,11 @@ class NiceTitForTat(nenv.AbstractAgent):
         best_bid = self.opponentHistory.getBestBidDetails().bid
         best_bid_utility = self.get_utility(best_bid)
 
-        if len(recent_bids.history) > 1 and best_bid_utility > offered_utility and self.offeredOpponentBestBid <= 3:
+        if (
+            len(recent_bids.history) > 1
+            and best_bid_utility > offered_utility
+            and self.offeredOpponentBestBid <= 3
+        ):
             self.offeredOpponentBestBid += 1
 
             return nenv.Offer(best_bid)
@@ -314,9 +348,9 @@ class NiceTitForTat(nenv.AbstractAgent):
 
         for b in bids:
             utility = self.opponent_model.preference.get_utility(b)
-            possibleBidHistory.add(BidDetails(b, utility, 0.))
+            possibleBidHistory.add(BidDetails(b, utility, 0.0))
 
-        n = int(round(len(bids) / 10.))
+        n = int(round(len(bids) / 10.0))
 
         if n < 3:
             n = 3

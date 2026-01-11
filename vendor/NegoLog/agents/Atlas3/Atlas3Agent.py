@@ -10,7 +10,7 @@ class Atlas3Agent(nenv.AbstractAgent):
     """
     **Atlas3 agent by Akiyuki Mori**:
         Atlas3 agent uses appropriate searching method based on relative utility for
-        linear utility spaces. Moreover, it applies replacement method based on frequency of opponent’s bidding history.
+        linear utility spaces. Moreover, it applies replacement method based on frequency of opponent's bidding history.
         It decides concession value according to the concession function presented by us in Mori and Ito (A compromising
         strategy based on expected utility of evolutionary stable strategy in bilateral closed bargaining problem, 2015,
         [Mori2015]_). In Mori and Ito (A compromising strategy based on expected utility of evolutionary stable strategy
@@ -25,7 +25,11 @@ class Atlas3Agent(nenv.AbstractAgent):
     .. [Mori2017] Mori, A., Ito, T. (2017). Atlas3: A Negotiating Agent Based on Expecting Lower Limit of Concession Function. In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. <https://doi.org/10.1007/978-3-319-51563-2_11>
     .. [Mori2015] Mori, A., & Ito, T. (2015). A compromising strategy based on expected utility of evolutionary stable strategy in bilateral closed bargaining problem. Proceedings of agent-based complex automated negotiations, 58-65.
 
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
+
     """
+
     negotiatingInfo: negotiatingInfo
     bidSearch: bidSearch
     strategy: strategy
@@ -53,7 +57,7 @@ class Atlas3Agent(nenv.AbstractAgent):
 
         CList = self.negotiatingInfo.pb_list
 
-        if t > 1. - self.negotiatingInfo.time_scale * (len(CList) + 1):
+        if t > 1.0 - self.negotiatingInfo.time_scale * (len(CList) + 1):
             return self.chooseFinalAction(self.offeredBid, CList, t)
 
         if self.can_accept() and self.strategy.selectAccept(self.offeredBid, t):
@@ -61,8 +65,10 @@ class Atlas3Agent(nenv.AbstractAgent):
 
         return self.OfferAction(t)
 
-    def chooseFinalAction(self, offeredBid: nenv.Bid, CList: list, t: float) -> nenv.Action:
-        offered_bid_util = 0.
+    def chooseFinalAction(
+        self, offeredBid: nenv.Bid, CList: list, t: float
+    ) -> nenv.Action:
+        offered_bid_util = 0.0
 
         if offeredBid is not None:
             offered_bid_util = self.preference.get_utility(offeredBid)
@@ -87,7 +93,9 @@ class Atlas3Agent(nenv.AbstractAgent):
         return self.OfferAction(t)
 
     def OfferAction(self, t: float) -> nenv.Action:
-        offerBid = self.bidSearch.getBid(self.preference.get_random_bid(), self.strategy.getThreshold(t))
+        offerBid = self.bidSearch.getBid(
+            self.preference.get_random_bid(), self.strategy.getThreshold(t)
+        )
 
         self.negotiatingInfo.updateMyBidHistory(offerBid)
 

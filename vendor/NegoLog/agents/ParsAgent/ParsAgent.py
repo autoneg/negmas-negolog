@@ -31,15 +31,19 @@ class OpponentPreferences:
 
 class ParsAgent(nenv.AbstractAgent):
     """
-        **Pars agent by Zahra Khosravimehr**:
-            Pars agent uses a hybrid bidding strategy that combines behaviors of time-dependent, random and
-            frequency-based strategies to propose a high utility offer close to the opponents bids and to increase the
-            possibility of early agreement. [Khosravimehr2017]_
+    **Pars agent by Zahra Khosravimehr**:
+        Pars agent uses a hybrid bidding strategy that combines behaviors of time-dependent, random and
+        frequency-based strategies to propose a high utility offer close to the opponents bids and to increase the
+        possibility of early agreement. [Khosravimehr2017]_
 
-        ANAC 2015 individual utility category finalist.
+    ANAC 2015 individual utility category finalist.
 
-        .. [Khosravimehr2017] Khosravimehr, Z., Nassiri-Mofakham, F. (2017). Pars Agent: Hybrid Time-Dependent, Random and Frequency-Based Bidding and Acceptance Strategies in Multilateral Negotiations. In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. <https://doi.org/10.1007/978-3-319-51563-2_12>
+    .. [Khosravimehr2017] Khosravimehr, Z., Nassiri-Mofakham, F. (2017). Pars Agent: Hybrid Time-Dependent, Random and Frequency-Based Bidding and Acceptance Strategies in Multilateral Negotiations. In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. <https://doi.org/10.1007/978-3-319-51563-2_12>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     lastBid: Optional[nenv.Bid]
     lastAction: nenv.Action
     oppAName: Optional[str]
@@ -72,9 +76,11 @@ class ParsAgent(nenv.AbstractAgent):
         if self.lastBid is None:
             self.Imfirst = True
 
-            return nenv.Offer(self.getMyBestBid(self.preference.bids[0], 0.))
+            return nenv.Offer(self.getMyBestBid(self.preference.bids[0], 0.0))
 
-        if self.can_accept() and self.preference.get_utility(self.lastBid) > self.getMyUtility(t):
+        if self.can_accept() and self.preference.get_utility(
+            self.lastBid
+        ) > self.getMyUtility(t):
             return self.accept_action
 
         b = self.offerMyNewBid(t)
@@ -104,7 +110,10 @@ class ParsAgent(nenv.AbstractAgent):
         self.lastBid = bid
 
     def MyBestValue(self, issue: nenv.Issue):
-        values = [[value, weight] for value, weight in self.preference.value_weights[issue].items()]
+        values = [
+            [value, weight]
+            for value, weight in self.preference.value_weights[issue].items()
+        ]
 
         bestValue = max(values, key=lambda x: x[1])[0]
 
@@ -116,7 +125,9 @@ class ParsAgent(nenv.AbstractAgent):
         if len(self.opponentAB) > 0:
             bidNN = self.getNNBid(self.opponentAB, t)
 
-        if bidNN is not None and self.preference.get_utility(bidNN) >= self.getMyUtility(t):
+        if bidNN is not None and self.preference.get_utility(
+            bidNN
+        ) >= self.getMyUtility(t):
             return bidNN
 
         issues = self.getMutualIssues()
@@ -156,14 +167,17 @@ class ParsAgent(nenv.AbstractAgent):
             for i in range(len(dissues)):
                 self.updateMutualList(mutualList, dissues, twocycle, i)
 
-                if len(self.oppAPreferences.repeatedIssue[dissues[i]]) == 0 or (self.oppBPreferences is not None and len(self.oppBPreferences.repeatedIssue[dissues[i]]) == 0):
+                if len(self.oppAPreferences.repeatedIssue[dissues[i]]) == 0 or (
+                    self.oppBPreferences is not None
+                    and len(self.oppBPreferences.repeatedIssue[dissues[i]]) == 0
+                ):
                     twocycle -= 1
 
             if twocycle != 0:
                 twocycle -= 1
 
                 if len(self.opponentAB) == 0:
-                    nullval = 0.
+                    nullval = 0.0
 
                     for i in range(len(mutualList)):
                         if mutualList[i] is not None:
@@ -217,7 +231,11 @@ class ParsAgent(nenv.AbstractAgent):
                         maxkeyB[1] = keysB[j]
 
                 if twocycle == 2:
-                    if maxkey[0] is not None and maxkeyB[0] is not None and maxkey[0] == maxkeyB[0]:
+                    if (
+                        maxkey[0] is not None
+                        and maxkeyB[0] is not None
+                        and maxkey[0] == maxkeyB[0]
+                    ):
                         mutualList.insert(i, [maxkey[0], maxB[0], max[0]])
                     else:
                         mutualList.insert(i, None)
@@ -229,7 +247,11 @@ class ParsAgent(nenv.AbstractAgent):
                             break
 
                         for z in range(2):
-                            if maxkey[m] is not None and maxkeyB[z] is not None and maxkey[m] == maxkeyB[z]:
+                            if (
+                                maxkey[m] is not None
+                                and maxkeyB[z] is not None
+                                and maxkey[m] == maxkeyB[z]
+                            ):
                                 mutualList.insert(i, [maxkey[0], maxB[0], max[0]])
                                 insideloop = False
                                 break
@@ -246,7 +268,7 @@ class ParsAgent(nenv.AbstractAgent):
     def getNNBid(self, oppAB: list, t: float):
         dissues = self.preference.issues
         maxBid = None
-        maxutility = 0.
+        maxutility = 0.0
         size = 0
         exloop = 0
         newBid: nenv.Bid
@@ -265,7 +287,10 @@ class ParsAgent(nenv.AbstractAgent):
                 vals[dissues[bi]] = self.getRandomValue(dissues[bi])
                 newBid = nenv.Bid(vals)
 
-                if self.preference.get_utility(newBid) > self.getMyUtility(t) and self.preference.get_utility(newBid) > maxutility:
+                if (
+                    self.preference.get_utility(newBid) > self.getMyUtility(t)
+                    and self.preference.get_utility(newBid) > maxutility
+                ):
                     maxBid = newBid.copy()
                     maxutility = self.preference.get_utility(maxBid)
 
@@ -277,7 +302,7 @@ class ParsAgent(nenv.AbstractAgent):
 
     def chooseBestIssue(self):
         rnd = random.random()
-        sumWeight = 0.
+        sumWeight = 0.0
 
         for i in reversed(range(len(self.preference.issues))):
             sumWeight += self.preference.issue_weights[self.preference.issues[i]]
@@ -289,12 +314,12 @@ class ParsAgent(nenv.AbstractAgent):
 
     def chooseWorstIssue(self):
         rnd = random.random() * 100
-        sumWeight = 0.
+        sumWeight = 0.0
         minin = 1
-        min = 1.
+        min = 1.0
 
         for i in reversed(range(len(self.preference.issues))):
-            sumWeight += 1. / self.preference.issue_weights[self.preference.issues[i]]
+            sumWeight += 1.0 / self.preference.issue_weights[self.preference.issues[i]]
 
             if self.preference.issue_weights[self.preference.issues[i]] < min:
                 min = self.preference.issue_weights[self.preference.issues[i]]
@@ -305,7 +330,7 @@ class ParsAgent(nenv.AbstractAgent):
 
         return minin
 
-    def getMyBestBid(self, sugestBid: nenv.Bid, t: float = 0.):
+    def getMyBestBid(self, sugestBid: nenv.Bid, t: float = 0.0):
         dissues = self.preference.issues
 
         newBid = sugestBid.copy()
@@ -325,7 +350,7 @@ class ParsAgent(nenv.AbstractAgent):
 
         return newBid
 
-        '''
+        """
         Old code takes long time
         
         dissues = self.preference.issues
@@ -350,7 +375,7 @@ class ParsAgent(nenv.AbstractAgent):
                 return newBid
 
         return newBid
-        '''
+        """
 
     def addBidToList(self, myBids: list, newBid: BidUtility):
         index = len(myBids)

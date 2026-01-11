@@ -53,9 +53,9 @@ exclude = ["vendor/*"]
 
 [tool.ruff.lint]
 # E402: Module level import not at top of file
-# This is intentionally violated in common.py and test_equivalence.py because
-# we need to modify sys.path before importing vendored NegoLog modules
-per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equivalence.py" = ["E402"] }
+# This is intentionally violated in common.py, test_equivalence.py, and compare_behavior.py
+# because we need to modify sys.path before importing vendored NegoLog modules
+per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equivalence.py" = ["E402"], "scripts/compare_behavior.py" = ["E402"] }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

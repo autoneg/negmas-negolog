@@ -7,10 +7,14 @@ from agents.Kawaii.Strategy import Strategy
 
 class Kawaii(nenv.AbstractAgent):
     """
-        ANAC 2015 individual utility category runner-up. [Baarslag2015]_
+    ANAC 2015 individual utility category runner-up. [Baarslag2015]_
 
-        .. [Baarslag2015] Baarslag, T., Aydoğan, R., Hindriks, K. V., Fujita, K., Ito, T., & Jonker, C. M. (2015). The Automated Negotiating Agents Competition, 2010–2015. AI Magazine, 36(4), 115-118. <https://doi.org/10.1609/aimag.v36i4.2609>
+    .. [Baarslag2015] Baarslag, T., Aydoğan, R., Hindriks, K. V., Fujita, K., Ito, T., & Jonker, C. M. (2015). The Automated Negotiating Agents Competition, 2010–2015. AI Magazine, 36(4), 115-118. <https://doi.org/10.1609/aimag.v36i4.2609>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     negotiatingInfo: NegotiatingInfo
     bidSearch: BidSearch
     strategy: Strategy
@@ -35,7 +39,9 @@ class Kawaii(nenv.AbstractAgent):
         return self.OfferAction(t)
 
     def OfferAction(self, t: float):
-        offeredBid = self.bidSearch.getBid(self.preference.get_random_bid(), self.strategy.getThreshold(t))
+        offeredBid = self.bidSearch.getBid(
+            self.preference.get_random_bid(), self.strategy.getThreshold(t)
+        )
 
         self.negotiatingInfo.MyBidHistory.append(offeredBid)
 
@@ -50,4 +56,3 @@ class Kawaii(nenv.AbstractAgent):
         self.offeredBid = bid.copy()
 
         self.negotiatingInfo.opponentsBool[sender] = False
-

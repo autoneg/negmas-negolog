@@ -6,37 +6,41 @@ from agents.AgentGG.ImpMap import ImpMap
 
 class AgentGG(nenv.AbstractAgent):
     """
-        **AgentGG by Shaobo Xu**:
-            AgentGG applies Frequentist opponent model to estimate both self and opponent preferences. So, it considers
-            the importance of a bid instead of utility value. Besides, it randomly selects bid based on both estimated
-            self and opponent preferences. It also applies Time-Based approach for the bidding strategy. [Aydogan2020]_
+    **AgentGG by Shaobo Xu**:
+        AgentGG applies Frequentist opponent model to estimate both self and opponent preferences. So, it considers
+        the importance of a bid instead of utility value. Besides, it randomly selects bid based on both estimated
+        self and opponent preferences. It also applies Time-Based approach for the bidding strategy. [Aydogan2020]_
 
-        ANAC 2019 individual utility category winner.
+    ANAC 2019 individual utility category winner.
 
-        .. [Aydogan2020] Aydoğan, R. et al. (2020). Challenges and Main Results of the Automated Negotiating Agents Competition (ANAC) 2019. In: Bassiliades, N., Chalkiadakis, G., de Jonge, D. (eds) Multi-Agent Systems and Agreement Technologies. EUMAS AT 2020 2020. Lecture Notes in Computer Science(), vol 12520. Springer, Cham. <https://doi.org/10.1007/978-3-030-66412-1_23>
+    .. [Aydogan2020] Aydoğan, R. et al. (2020). Challenges and Main Results of the Automated Negotiating Agents Competition (ANAC) 2019. In: Bassiliades, N., Chalkiadakis, G., de Jonge, D. (eds) Multi-Agent Systems and Agreement Technologies. EUMAS AT 2020 2020. Lecture Notes in Computer Science(), vol 12520. Springer, Cham. <https://doi.org/10.1007/978-3-030-66412-1_23>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
-    impMap: ImpMap                          #: Opponent Model for self preferences
-    opponentImpMap: ImpMap                  #: Opponent Model for opponent preferences
-    offerLowerRatio: float                  #: Lower ratio for the offer range
-    offerHigherRatio: float                 #: Higher ratio for the offer range
-    MAX_IMPORTANCE: float                   #: Max. importance for self
-    MIN_IMPORTANCE: float                   #: Min. importance for self
-    MEDIAN_IMPORTANCE: float                #: Median importance for self
-    MAX_IMPORTANCE_BID: nenv.Bid            #: The bid content which is max. importance
-    MIN_IMPORTANCE_BID: nenv.Bid            #: The bid content which is min. importance
-    OPPONENT_MAX_IMPORTANCE: float          #: Max. importance of opponent
-    OPPONENT_MIN_IMPORTANCE: float          #: Min. importance of opponent
-    receivedBid: nenv.Bid                   #: Received bid
-    initialOpponentBid: nenv.Bid            #: First received bid
-    reservationImportanceRatio: float       #: Normalized reservation value
-    offerRandomly: bool                     #: Select random bid when t < 0.2
 
-    startTime: float                        #: The negotiation time when the first bid is received
-    maxOppoBidImpForMeGot: bool             #: If max. received bid is determined
-    maxOppoBidImpForMe: float               #: Max. received bid
-    estimatedNashPoint: float               #: Estimated nash point
-    lastReceivedBid: nenv.Bid               #: Last received bid
-    initialTimePass: bool                   #: If the first bid is received, or not
+    impMap: ImpMap  #: Opponent Model for self preferences
+    opponentImpMap: ImpMap  #: Opponent Model for opponent preferences
+    offerLowerRatio: float  #: Lower ratio for the offer range
+    offerHigherRatio: float  #: Higher ratio for the offer range
+    MAX_IMPORTANCE: float  #: Max. importance for self
+    MIN_IMPORTANCE: float  #: Min. importance for self
+    MEDIAN_IMPORTANCE: float  #: Median importance for self
+    MAX_IMPORTANCE_BID: nenv.Bid  #: The bid content which is max. importance
+    MIN_IMPORTANCE_BID: nenv.Bid  #: The bid content which is min. importance
+    OPPONENT_MAX_IMPORTANCE: float  #: Max. importance of opponent
+    OPPONENT_MIN_IMPORTANCE: float  #: Min. importance of opponent
+    receivedBid: nenv.Bid  #: Received bid
+    initialOpponentBid: nenv.Bid  #: First received bid
+    reservationImportanceRatio: float  #: Normalized reservation value
+    offerRandomly: bool  #: Select random bid when t < 0.2
+
+    startTime: float  #: The negotiation time when the first bid is received
+    maxOppoBidImpForMeGot: bool  #: If max. received bid is determined
+    maxOppoBidImpForMe: float  #: Max. received bid
+    estimatedNashPoint: float  #: Estimated nash point
+    lastReceivedBid: nenv.Bid  #: Last received bid
+    initialTimePass: bool  #: If the first bid is received, or not
 
     def initiate(self, opponent_name: Optional[str]):
         # Default values
@@ -45,8 +49,8 @@ class AgentGG(nenv.AbstractAgent):
         self.offerRandomly = True
         self.maxOppoBidImpForMeGot = False
         self.initialTimePass = False
-        self.maxOppoBidImpForMe = 0.
-        self.estimatedNashPoint = 0.
+        self.maxOppoBidImpForMe = 0.0
+        self.estimatedNashPoint = 0.0
 
         self.reservationImportanceRatio = self.preference.reservation_value
 
@@ -68,7 +72,9 @@ class AgentGG(nenv.AbstractAgent):
             return nenv.Offer(self.MAX_IMPORTANCE_BID)
 
         # Get estimated importance for me
-        impRatioForMe = (self.impMap.getImportance(self.receivedBid) - self.MIN_IMPORTANCE) / (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
+        impRatioForMe = (
+            self.impMap.getImportance(self.receivedBid) - self.MIN_IMPORTANCE
+        ) / (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
 
         # Check acceptance condition
         if impRatioForMe >= self.offerLowerRatio:
@@ -76,7 +82,7 @@ class AgentGG(nenv.AbstractAgent):
 
         # If it is first received.
         if not self.maxOppoBidImpForMeGot:
-            self.getMaxOppoBidImpForMe(t, 3. / 1000.0)
+            self.getMaxOppoBidImpForMe(t, 3.0 / 1000.0)
 
         # Update opponent model when t < 0.3
         if t < 0.3:
@@ -112,21 +118,28 @@ class AgentGG(nenv.AbstractAgent):
         :param timeLast: Last negotiation time
         :return: Nothing
         """
-        thisBidImp = self.impMap.getImportance(self.receivedBid)    # Normalized importance
+        thisBidImp = self.impMap.getImportance(
+            self.receivedBid
+        )  # Normalized importance
 
         if thisBidImp > self.maxOppoBidImpForMe:  # Update the maximum received.
-
             self.maxOppoBidImpForMe = thisBidImp
 
         if self.initialTimePass:
             if time - self.startTime > timeLast:
                 # Normalized importance
-                maxOppoBidRatioForMe = (self.maxOppoBidImpForMe - self.MIN_IMPORTANCE) / (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
+                maxOppoBidRatioForMe = (
+                    self.maxOppoBidImpForMe - self.MIN_IMPORTANCE
+                ) / (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
 
-                self.estimatedNashPoint = (1 - maxOppoBidRatioForMe) / 1.7 + maxOppoBidRatioForMe
+                self.estimatedNashPoint = (
+                    1 - maxOppoBidRatioForMe
+                ) / 1.7 + maxOppoBidRatioForMe
 
                 self.maxOppoBidImpForMeGot = True
-            elif self.lastReceivedBid != self.receivedBid:  # If it is the first received bid.
+            elif (
+                self.lastReceivedBid != self.receivedBid
+            ):  # If it is the first received bid.
                 self.initialTimePass = True
                 self.startTime = time
 
@@ -150,21 +163,31 @@ class AgentGG(nenv.AbstractAgent):
             p1 = 0.15 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             p2 = 0.05 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             possibleRatio = p1 - (p1 - p2) / (0.98 - 0.9) * (time - 0.9)
-            self.offerLowerRatio = max(possibleRatio, self.reservationImportanceRatio + 0.3)
+            self.offerLowerRatio = max(
+                possibleRatio, self.reservationImportanceRatio + 0.3
+            )
         elif time < 0.995:
             p1 = 0.05 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             p2 = 0.0 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             possibleRatio = p1 - (p1 - p2) / (0.995 - 0.98) * (time - 0.98)
 
-            self.offerLowerRatio = max(possibleRatio, self.reservationImportanceRatio + 0.25)
+            self.offerLowerRatio = max(
+                possibleRatio, self.reservationImportanceRatio + 0.25
+            )
         elif time < 0.999:
             p1 = 0.0 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             p2 = -0.35 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
             possibleRatio = p1 - (p1 - p2) / (0.9989 - 0.995) * (time - 0.995)
-            self.offerLowerRatio = max(possibleRatio, self.reservationImportanceRatio + 0.25)
+            self.offerLowerRatio = max(
+                possibleRatio, self.reservationImportanceRatio + 0.25
+            )
         else:
-            possibleRatio = -0.4 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
-            self.offerLowerRatio = max(possibleRatio, self.reservationImportanceRatio + 0.2)
+            possibleRatio = (
+                -0.4 * (1 - self.estimatedNashPoint) + self.estimatedNashPoint
+            )
+            self.offerLowerRatio = max(
+                possibleRatio, self.reservationImportanceRatio + 0.2
+            )
 
         self.offerHigherRatio = self.offerLowerRatio + 0.1
 
@@ -173,7 +196,9 @@ class AgentGG(nenv.AbstractAgent):
             This method calculates the normalized reservation value
         :return: Normalized reservation value
         """
-        medianBidRatio = (self.MEDIAN_IMPORTANCE - self.MIN_IMPORTANCE) / (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
+        medianBidRatio = (self.MEDIAN_IMPORTANCE - self.MIN_IMPORTANCE) / (
+            self.MAX_IMPORTANCE - self.MIN_IMPORTANCE
+        )
 
         return self.preference.reservation_value * medianBidRatio / 0.5
 
@@ -182,8 +207,8 @@ class AgentGG(nenv.AbstractAgent):
             This method finds the highest and lowest normalized importance for self
         :return: Nothing
         """
-        lValues1 = {}   # Highest bid content
-        lValues2 = {}   # Lowest bid content
+        lValues1 = {}  # Highest bid content
+        lValues2 = {}  # Lowest bid content
 
         for issue, impUnitList in self.impMap.map.items():
             value1 = impUnitList[0].valueOfIssue
@@ -236,14 +261,20 @@ class AgentGG(nenv.AbstractAgent):
         """
 
         # Range
-        lowerThreshold = lowerRatio * (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE) + self.MIN_IMPORTANCE
-        upperThreshold = upperRatio * (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE) + self.MIN_IMPORTANCE
+        lowerThreshold = (
+            lowerRatio * (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
+            + self.MIN_IMPORTANCE
+        )
+        upperThreshold = (
+            upperRatio * (self.MAX_IMPORTANCE - self.MIN_IMPORTANCE)
+            + self.MIN_IMPORTANCE
+        )
 
         bids = self.get_bids(upperThreshold, lowerThreshold)
 
         for t in range(3):  # Try three time
             k = len(bids) * 2
-            highest_opponent_importance = 0.
+            highest_opponent_importance = 0.0
 
             returnedBid = None
 
@@ -264,7 +295,7 @@ class AgentGG(nenv.AbstractAgent):
             if returnedBid is not None:
                 return returnedBid
 
-        '''
+        """
         # Old code can be stuck.
 
         while True:
@@ -273,7 +304,7 @@ class AgentGG(nenv.AbstractAgent):
             if self.impMap.getImportance(bid) >= lowerThreshold:
                 return bid
 
-        '''
+        """
 
         return self.get_random_bid(lowerThreshold)
 
@@ -283,7 +314,11 @@ class AgentGG(nenv.AbstractAgent):
         :param lower_threshold: Lower threshold
         :return: Random selected bid
         """
-        bids = [bid for bid in self.preference.bids if self.impMap.getImportance(bid) >= lower_threshold]
+        bids = [
+            bid
+            for bid in self.preference.bids
+            if self.impMap.getImportance(bid) >= lower_threshold
+        ]
 
         # If no bid >= lower_threshold
         if len(bids) == 0:
@@ -293,7 +328,9 @@ class AgentGG(nenv.AbstractAgent):
 
         return rnd.choice(bids)
 
-    def get_bids(self, upper_threshold: float, lower_threshold: float) -> List[nenv.Bid]:
+    def get_bids(
+        self, upper_threshold: float, lower_threshold: float
+    ) -> List[nenv.Bid]:
         """
             This method selects the bids in given importance range.
         :param upper_threshold: Upper threshold
@@ -301,6 +338,10 @@ class AgentGG(nenv.AbstractAgent):
         :return: List of bids
         """
 
-        bids = [bid for bid in self.preference.bids if upper_threshold >= self.impMap.getImportance(bid) >= lower_threshold]
+        bids = [
+            bid
+            for bid in self.preference.bids
+            if upper_threshold >= self.impMap.getImportance(bid) >= lower_threshold
+        ]
 
         return bids

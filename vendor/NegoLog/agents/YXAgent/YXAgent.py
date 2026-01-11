@@ -5,10 +5,14 @@ import nenv
 
 class YXAgent(nenv.AbstractAgent):
     """
-        ANAC 2016 individual utility category runner-up. [Aydogan2021]_
+    ANAC 2016 individual utility category runner-up. [Aydogan2021]_
 
-        .. [Aydogan2021] Reyhan Aydoğan, Katsuhide Fujita, Tim Baarslag, Catholijn M. Jonker, and Takayuki Ito. ANAC 2017: Repeated multilateral negotiation league. In Advances in Auto- mated Negotiations, pages 101–115, Singapore, 2021. Springer Singapore.
+    .. [Aydogan2021] Reyhan Aydoğan, Katsuhide Fujita, Tim Baarslag, Catholijn M. Jonker, and Takayuki Ito. ANAC 2017: Repeated multilateral negotiation league. In Advances in Auto- mated Negotiations, pages 101–115, Singapore, 2021. Springer Singapore.
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     myAction: nenv.Action
     myLastBid: nenv.Bid
     lastOpponentBid: nenv.Bid
@@ -51,7 +55,7 @@ class YXAgent(nenv.AbstractAgent):
         self.updatedValueIntegerWeight = False
         self.issueContainIntegerType = False
         self.searchedDiscountWithRV = False
-        self.oppUtility = 0.
+        self.oppUtility = 0.0
 
     def receive_offer(self, bid: nenv.Bid, t: float):
         sender = "OpponentAgent"
@@ -71,7 +75,7 @@ class YXAgent(nenv.AbstractAgent):
 
         testBid = None
         v: str
-        calUtil = 0.
+        calUtil = 0.0
         calThreshold: float
         tempThreshold: float
         minimalThreshold = 0.7
@@ -101,16 +105,26 @@ class YXAgent(nenv.AbstractAgent):
             for issue in self.issues:
                 v = self.lastOpponentBid[issue]
 
-                calUtil += self.oppIssueWeight[self.hardestOpp][issue] * self.oppValueFrequency[self.hardestOpp][issue][
-                    v]
+                calUtil += (
+                    self.oppIssueWeight[self.hardestOpp][issue]
+                    * self.oppValueFrequency[self.hardestOpp][issue][v]
+                )
 
             calThreshold = calUtil - ((len(self.opponents) * deductThreshold) * 3 / 4)
             calThreshold = max(tempThreshold, calThreshold)
-            myAction = self.accept_action if self.oppUtility > calThreshold else nenv.Offer(testBid)
+            myAction = (
+                self.accept_action
+                if self.oppUtility > calThreshold
+                else nenv.Offer(testBid)
+            )
 
             return myAction
         else:
-            myAction = self.accept_action if self.oppUtility > tempThreshold else nenv.Offer(testBid)
+            myAction = (
+                self.accept_action
+                if self.oppUtility > tempThreshold
+                else nenv.Offer(testBid)
+            )
 
             return myAction
 
@@ -140,7 +154,7 @@ class YXAgent(nenv.AbstractAgent):
                 self.oppIssueWeight[sender][issue] /= issueSum
 
     def updateModelOppValueWeight(self, sender, t):
-        maxValueBase = 0.
+        maxValueBase = 0.0
         valueWeightFormula = math.pow(0.2, t) / 30000
 
         for issue in self.issues:
@@ -154,7 +168,9 @@ class YXAgent(nenv.AbstractAgent):
                 self.oppValueFrequency[sender][issue][value] /= maxValueBase
 
     def retrieveToughestOpp(self):
-        self.hardestOpp = self.opponents[0] if len(self.opponents) > 0 else "OpponentAgent"
+        self.hardestOpp = (
+            self.opponents[0] if len(self.opponents) > 0 else "OpponentAgent"
+        )
 
     def initOpp(self, sender):
         self.oppIssueIntegerValue[sender] = {}
@@ -163,7 +179,7 @@ class YXAgent(nenv.AbstractAgent):
         self.oppBidHistory[sender] = []
 
     def initModelOppIssueWeight(self, sender):
-        avgW = 1. / len(self.issues)
+        avgW = 1.0 / len(self.issues)
 
         self.oppIssueWeight[sender] = {}
 
@@ -176,7 +192,7 @@ class YXAgent(nenv.AbstractAgent):
             self.oppValueFrequency[sender][issue] = {}
 
             for value in issue.values:
-                self.oppValueFrequency[sender][issue][value] = 1.
+                self.oppValueFrequency[sender][issue][value] = 1.0
 
     @property
     def issues(self) -> List[nenv.Issue]:

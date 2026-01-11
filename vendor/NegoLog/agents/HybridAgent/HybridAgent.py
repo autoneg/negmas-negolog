@@ -5,15 +5,19 @@ from nenv import Bid, Action, Offer
 
 class HybridAgent(nenv.AbstractAgent):
     """
-        Hybrid Agent combines Time-Based and Behavior-Based strategies. [Keskin2021]_
+    Hybrid Agent combines Time-Based and Behavior-Based strategies. [Keskin2021]_
 
 
-        .. [Keskin2021] Mehmet Onur Keskin, Umut Çakan, and Reyhan Aydoğan. 2021. Solver Agent: Towards Emotional and Opponent-Aware Agent for Human-Robot Negotiation. In Proceedings of the 20th International Conference on Autonomous Agents and MultiAgent Systems (AAMAS '21). International Foundation for Autonomous Agents and Multiagent Systems, Richland, SC, 1557–1559.
+    .. [Keskin2021] Mehmet Onur Keskin, Umut Çakan, and Reyhan Aydoğan. 2021. Solver Agent: Towards Emotional and Opponent-Aware Agent for Human-Robot Negotiation. In Proceedings of the 20th International Conference on Autonomous Agents and MultiAgent Systems (AAMAS '21). International Foundation for Autonomous Agents and Multiagent Systems, Richland, SC, 1557–1559.
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
-    p0: float   #: Initial utility
-    p1: float   #: Concession ratio
-    p2: float   #: Final utility
-    p3: float   #: Empathy Score
+
+    p0: float  #: Initial utility
+    p1: float  #: Concession ratio
+    p2: float  #: Final utility
+    p3: float  #: Empathy Score
 
     # Window for Behavior-Based strategy
     W = {
@@ -55,12 +59,14 @@ class HybridAgent(nenv.AbstractAgent):
         """
 
         # Utility differences of consecutive offers of opponent
-        diff = [self.last_received_bids[i + 1].utility - self.last_received_bids[i].utility
-                for i in range(len(self.last_received_bids) - 1)]
+        diff = [
+            self.last_received_bids[i + 1].utility - self.last_received_bids[i].utility
+            for i in range(len(self.last_received_bids) - 1)
+        ]
 
         # Fixed size window
         if len(diff) > len(self.W):
-            diff = diff[-len(self.W):]
+            diff = diff[-len(self.W) :]
 
         # delta = diff * window
         delta = sum([u * w for u, w in zip(diff, self.W[len(diff)])])
@@ -85,7 +91,9 @@ class HybridAgent(nenv.AbstractAgent):
             behaviour_based_utility = self.behaviour_based(t)
 
             # Combining Time-Based and Behavior-Based strategy
-            target_utility = (1. - t * t) * behaviour_based_utility + t * t * target_utility
+            target_utility = (
+                1.0 - t * t
+            ) * behaviour_based_utility + t * t * target_utility
 
         # Target utility cannot be lower than the reservation value.
         if target_utility < self.preference.reservation_value:

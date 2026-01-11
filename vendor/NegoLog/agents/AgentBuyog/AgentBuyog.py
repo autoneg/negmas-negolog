@@ -10,12 +10,16 @@ from agents.NiceTitForTat.helpers.BidHistory import BidHistory, BidDetails
 
 class AgentBuyog(nenv.AbstractAgent):
     """
-        AgentBuyog estimates the concession function of the opponent. [Fujita2017]_
+    AgentBuyog estimates the concession function of the opponent. [Fujita2017]_
 
-        ANAC 2015 individual utility category runner-up.
+    ANAC 2015 individual utility category runner-up.
 
-        .. [Fujita2017] Fujita, K., Aydoğan, R., Baarslag, T., Hindriks, K., Ito, T., Jonker, C. (2017). The Sixth Automated Negotiating Agents Competition (ANAC 2015). In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. https://doi.org/10.1007/978-3-319-51563-2_9
+    .. [Fujita2017] Fujita, K., Aydoğan, R., Baarslag, T., Hindriks, K., Ito, T., Jonker, C. (2017). The Sixth Automated Negotiating Agents Competition (ANAC 2015). In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. https://doi.org/10.1007/978-3-319-51563-2_9
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     alphaDefault: float
     betaDefault: float
     issueWeightsConstant: float
@@ -38,14 +42,14 @@ class AgentBuyog(nenv.AbstractAgent):
     numberOfRounds: int
 
     def initiate(self, opponent_name: Optional[str]):
-        self.alphaDefault = 0.
-        self.betaDefault = 0.
+        self.alphaDefault = 0.0
+        self.betaDefault = 0.0
         self.issueWeightsConstant = 0.3
         self.issueValuesConstant = 100
         self.minimumHistorySize = 50
         self.learningTimeController = 1.3
         self.maxWeightForBidPoint = 300
-        self.leniencyAdjuster = 1.
+        self.leniencyAdjuster = 1.0
         self.domainWeightController = 1.75
         self.timeConcessionController = 1.8
         self.lastSecondConcessionFactor = 0.5
@@ -70,10 +74,10 @@ class AgentBuyog(nenv.AbstractAgent):
         remainingRounds = (1 - t) / (timePerRound + 1e-10)
 
         bestBid = None
-        minimumPoint = 1. * 0.7 + self.preference.reservation_value * 0.3
+        minimumPoint = 1.0 * 0.7 + self.preference.reservation_value * 0.3
         bestAgreeableBidSoFar = None
-        bestAgreeableBidsUtility = 0.
-        mostRecentBidsUtility = 0.
+        bestAgreeableBidsUtility = 0.0
+        mostRecentBidsUtility = 0.0
 
         if len(self.AandBscommonBids.history) > 0:
             bestAgreeableBidSoFar = self.AandBscommonBids.getBestBidDetails()
@@ -84,7 +88,12 @@ class AgentBuyog(nenv.AbstractAgent):
 
         difficultAgent: Optional[OpponentInfo] = None
 
-        if self.infoA is not None and self.infoB is not None and self.infoA.agentDifficulty is not None and self.infoB.agentDifficulty is not None:
+        if (
+            self.infoA is not None
+            and self.infoB is not None
+            and self.infoA.agentDifficulty is not None
+            and self.infoB.agentDifficulty is not None
+        ):
             if self.infoA.agentDifficulty <= self.infoB.agentDifficulty:
                 difficultAgent = self.infoA
             else:
@@ -92,7 +101,9 @@ class AgentBuyog(nenv.AbstractAgent):
 
             minimumPoint = 1 * difficultAgent.agentDifficulty
 
-        acceptanceThreshold = minimumPoint + (1 - minimumPoint) * (1 - math.pow(t, self.timeConcessionController))
+        acceptanceThreshold = minimumPoint + (1 - minimumPoint) * (
+            1 - math.pow(t, self.timeConcessionController)
+        )
 
         if remainingRounds <= 3:
             acceptanceThreshold = acceptanceThreshold * self.lastSecondConcessionFactor
@@ -100,16 +111,29 @@ class AgentBuyog(nenv.AbstractAgent):
         if acceptanceThreshold < self.preference.reservation_value:
             acceptanceThreshold = self.preference.reservation_value
 
-        if self.can_accept() and mostRecentBidsUtility >= acceptanceThreshold and mostRecentBidsUtility >= bestAgreeableBidsUtility and remainingRounds <= 3:
+        if (
+            self.can_accept()
+            and mostRecentBidsUtility >= acceptanceThreshold
+            and mostRecentBidsUtility >= bestAgreeableBidsUtility
+            and remainingRounds <= 3
+        ):
             return self.accept_action
 
         if bestAgreeableBidsUtility > acceptanceThreshold:
             bestBid = bestAgreeableBidSoFar
         else:
-            bidsInWindow = [BidDetails(bid, bid.utility, t) for bid in self.preference.get_bids_at(acceptanceThreshold, 0., 1.)]
+            bidsInWindow = [
+                BidDetails(bid, bid.utility, t)
+                for bid in self.preference.get_bids_at(acceptanceThreshold, 0.0, 1.0)
+            ]
             bestBid = self.getBestBidFromList(bidsInWindow)
 
-        if self.can_accept() and mostRecentBidsUtility >= acceptanceThreshold and mostRecentBidsUtility >= bestAgreeableBidsUtility and mostRecentBidsUtility >= bestBid.utility:
+        if (
+            self.can_accept()
+            and mostRecentBidsUtility >= acceptanceThreshold
+            and mostRecentBidsUtility >= bestAgreeableBidsUtility
+            and mostRecentBidsUtility >= bestBid.utility
+        ):
             return self.accept_action
 
         self.totalHistory.add(bestBid)
@@ -117,14 +141,21 @@ class AgentBuyog(nenv.AbstractAgent):
         return nenv.Offer(bestBid.bid)
 
     def getBestBidFromList(self, bidsInWindow: list):
-        if self.infoA is None or self.infoB is None or self.infoA.agentDifficulty is None or self.infoB.agentDifficulty is None:
+        if (
+            self.infoA is None
+            or self.infoB is None
+            or self.infoA.agentDifficulty is None
+            or self.infoB.agentDifficulty is None
+        ):
             return random.choice(bidsInWindow)
 
-        bestBid = self.findNearestBidToKalai(bidsInWindow, 1., 1.)
+        bestBid = self.findNearestBidToKalai(bidsInWindow, 1.0, 1.0)
 
         return bestBid
 
-    def findNearestBidToKalai(self, bidsInWindow: list, infoAKalai: float, infoBKalai: float):
+    def findNearestBidToKalai(
+        self, bidsInWindow: list, infoAKalai: float, infoBKalai: float
+    ):
         nearestBid: BidDetails = bidsInWindow[0]
         shortestDistance: float = self.getDistance(nearestBid, infoAKalai, infoBKalai)
 
@@ -138,8 +169,12 @@ class AgentBuyog(nenv.AbstractAgent):
         return nearestBid
 
     def getDistance(self, bid: BidDetails, infoAKalai: float, infoBKalai: float):
-        return math.sqrt((1 - self.infoA.agentDifficulty) * math.pow(self.infoA.pref.get_utility(bid.bid), 2.) +
-                         (1 - self.infoB.agentDifficulty) * math.pow(self.infoB.pref.get_utility(bid.bid), 2.))
+        return math.sqrt(
+            (1 - self.infoA.agentDifficulty)
+            * math.pow(self.infoA.pref.get_utility(bid.bid), 2.0)
+            + (1 - self.infoB.agentDifficulty)
+            * math.pow(self.infoB.pref.get_utility(bid.bid), 2.0)
+        )
 
     def receive_offer(self, bid: nenv.Bid, t: float):
         if not self.initialized:
@@ -184,15 +219,17 @@ class AgentBuyog(nenv.AbstractAgent):
             beta = regression.w2
 
             slopeStandardScale = math.exp(alpha) * beta * math.pow(t, beta - 1)
-            slopeFromZeroToOne = math.atan(slopeStandardScale) / (math.pi / 2.)
-            adjustedLeniency = slopeFromZeroToOne + slopeFromZeroToOne / self.leniencyAdjuster
+            slopeFromZeroToOne = math.atan(slopeStandardScale) / (math.pi / 2.0)
+            adjustedLeniency = (
+                slopeFromZeroToOne + slopeFromZeroToOne / self.leniencyAdjuster
+            )
 
             if adjustedLeniency > 1:
-                adjustedLeniency = 1.
+                adjustedLeniency = 1.0
 
             senderInfo.leniency = adjustedLeniency
         else:
-            senderInfo.leniency = -1.
+            senderInfo.leniency = -1.0
 
         opponentUtilitySpace = senderInfo.pref
 
@@ -206,25 +243,40 @@ class AgentBuyog(nenv.AbstractAgent):
         opponentsLatestBid = opponentsBidHistory.history[-1]
         opponentsSecondLastBid = opponentsBidHistory.history[-2]
 
-        changed = self.determineDifference(senderInfo, opponentsSecondLastBid, opponentsLatestBid)
+        changed = self.determineDifference(
+            senderInfo, opponentsSecondLastBid, opponentsLatestBid
+        )
 
         for hasChanged in changed.values():
             if not hasChanged:
                 numberOfUnchanged += 1
 
-        goldenValue = self.issueWeightsConstant * (1 - (math.pow(t, self.learningTimeController + 1.))) / numberOfIssues
+        goldenValue = (
+            self.issueWeightsConstant
+            * (1 - (math.pow(t, self.learningTimeController + 1.0)))
+            / numberOfIssues
+        )
 
-        totalSum = 1. + goldenValue * numberOfUnchanged
-        maximumWeight = 1. - numberOfIssues * goldenValue / totalSum
+        totalSum = 1.0 + goldenValue * numberOfUnchanged
+        maximumWeight = 1.0 - numberOfIssues * goldenValue / totalSum
 
         for issue in changed.keys():
-            if not changed[issue] and opponentUtilitySpace.issue_weights[issue] < maximumWeight:
-                opponentUtilitySpace[issue] = (opponentUtilitySpace[issue] + goldenValue) / totalSum
+            if (
+                not changed[issue]
+                and opponentUtilitySpace.issue_weights[issue] < maximumWeight
+            ):
+                opponentUtilitySpace[issue] = (
+                    opponentUtilitySpace[issue] + goldenValue
+                ) / totalSum
             else:
                 opponentUtilitySpace[issue] = opponentUtilitySpace[issue] / totalSum
 
         for issue in opponentUtilitySpace.issues:
-            opponentUtilitySpace[issue, opponentsLatestBid.bid[issue]] = opponentUtilitySpace[issue, opponentsLatestBid.bid[issue]] + self.issueValuesConstant * math.pow(t, self.learningTimeController + 1.)
+            opponentUtilitySpace[issue, opponentsLatestBid.bid[issue]] = (
+                opponentUtilitySpace[issue, opponentsLatestBid.bid[issue]]
+                + self.issueValuesConstant
+                * math.pow(t, self.learningTimeController + 1.0)
+            )
 
         opponentUtilitySpace.normalize()
 
@@ -236,18 +288,25 @@ class AgentBuyog(nenv.AbstractAgent):
             if kalaiPoint <= 0.4:
                 kalaiPoint += self.kalaiPointCorrection
             elif kalaiPoint <= 0.7:
-                kalaiPoint += self.kalaiPointCorrection / 2.
+                kalaiPoint += self.kalaiPointCorrection / 2.0
 
             if kalaiPoint > senderInfo.bestBids.getBestBidDetails().utility:
                 senderInfo.domainCompetitiveness = kalaiPoint
             else:
-                senderInfo.domainCompetitiveness = senderInfo.bestBids.getBestBidDetails().utility
+                senderInfo.domainCompetitiveness = (
+                    senderInfo.bestBids.getBestBidDetails().utility
+                )
 
             if len(senderInfo.agentBidHistory.history) >= self.minimumHistorySize:
                 try:
-                    domainWeight = (1 - math.pow(senderInfo.leniency, self.domainWeightController))
+                    domainWeight = 1 - math.pow(
+                        senderInfo.leniency, self.domainWeightController
+                    )
 
-                    agentDifficulty = (1 - domainWeight) * senderInfo.leniency + domainWeight * senderInfo.domainCompetitiveness
+                    agentDifficulty = (
+                        (1 - domainWeight) * senderInfo.leniency
+                        + domainWeight * senderInfo.domainCompetitiveness
+                    )
 
                     senderInfo.agentDifficulty = agentDifficulty
                 except:
@@ -257,7 +316,9 @@ class AgentBuyog(nenv.AbstractAgent):
 
                 senderInfo.agentDifficulty = agentDifficulty
 
-    def get_estimated_kalai_value(self, estimated_preference: nenv.OpponentModel.EstimatedPreference) -> float:
+    def get_estimated_kalai_value(
+        self, estimated_preference: nenv.OpponentModel.EstimatedPreference
+    ) -> float:
         """
             This method finds the utility of the agent where the Social Welfare is maximum.
         :param estimated_preference: Estimated opponent preferences
@@ -278,8 +339,13 @@ class AgentBuyog(nenv.AbstractAgent):
 
         return best_utility_me
 
-    def determineDifference(self, senderInfo: OpponentInfo, first: BidDetails, second: BidDetails):
-        return {issue: first.bid[issue] != second.bid[issue] for issue in self.preference.issues}
+    def determineDifference(
+        self, senderInfo: OpponentInfo, first: BidDetails, second: BidDetails
+    ):
+        return {
+            issue: first.bid[issue] != second.bid[issue]
+            for issue in self.preference.issues
+        }
 
     def getOpponentInfoObjectOfSender(self, sender):
         if self.infoA is not None and self.infoA.agentID == sender:
@@ -302,7 +368,9 @@ class AgentBuyog(nenv.AbstractAgent):
         if opponent is None or bid is None:
             return
 
-        opponent.agentBidHistory.add(BidDetails(bid, self.preference.get_utility(bid), t))
+        opponent.agentBidHistory.add(
+            BidDetails(bid, self.preference.get_utility(bid), t)
+        )
 
         for i, w in enumerate(opponent.bidPointWeights):
             if w > 1:
@@ -310,9 +378,14 @@ class AgentBuyog(nenv.AbstractAgent):
 
         opponent.bidPointWeights.append(self.maxWeightForBidPoint)
 
-        if opponent.bestBid is None or self.preference.get_utility(bid) >= self.preference.get_utility(opponent.bestBid):
+        if opponent.bestBid is None or self.preference.get_utility(
+            bid
+        ) >= self.preference.get_utility(opponent.bestBid):
             opponent.bestBid = bid
             opponent.bestBids.add(BidDetails(bid, self.preference.get_utility(bid), t))
         else:
-            opponent.bestBids.add(BidDetails(opponent.bestBid, self.preference.get_utility(opponent.bestBid), t))
-
+            opponent.bestBids.add(
+                BidDetails(
+                    opponent.bestBid, self.preference.get_utility(opponent.bestBid), t
+                )
+            )

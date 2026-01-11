@@ -19,10 +19,10 @@ class IssueData:
         self.issue = issue
         self.derta = derta
         self.locked = False
-        self.weight = 1.
-        self.max = 1.
-        self.map = {value: 0. for value in self.issue.values}
-        self.adder = 1.
+        self.weight = 1.0
+        self.max = 1.0
+        self.map = {value: 0.0 for value in self.issue.values}
+        self.adder = 1.0
         self.values = self.issue.values
 
     def Locked(self):
@@ -61,7 +61,7 @@ class PlayerData:
             self.map[issue] = IssueData(issue, derta)
 
     def GetUtility(self, bid: nenv.Bid):
-        ret = 0.
+        ret = 0.0
 
         for issue, value in bid:
             ret += self.map[issue].GetValueWithWeight(value)
@@ -83,7 +83,7 @@ class PlayerData:
                 v = pref.get_utility(bid) - min
                 issueData.setValue(value, v)
 
-            issueData.weight = 1. / (1. - min)
+            issueData.weight = 1.0 / (1.0 - min)
             issueData.Locked()
 
     def AddBid(self, bid: nenv.Bid):
@@ -107,7 +107,7 @@ class PlayerDataLib:
 
     def __init__(self, issues: list):
         self.playerDatas = []
-        self.playerDatas.append(PlayerData(issues, 1.))
+        self.playerDatas.append(PlayerData(issues, 1.0))
         self.playerDatas.append(PlayerData(issues, 1.05))
         self.playerDatas.append(PlayerData(issues, 0.55))
 
@@ -121,19 +121,23 @@ class PlayerDataLib:
 
 class RandomDance(nenv.AbstractAgent):
     """
-        **RandomDance agent by Shinji Kakimoto**:
-            In multi-lateral negotiations, agents need to simultaneously estimate the utility functions of more than two
-            agents. RandomDance agent proposes an estimating method that uses simple weighted functions by counting the
-            opponent’s evaluation value for each issue. For multi-lateral negotiations, RandomDance agent considers some
-            utility functions as the `single` utility function by weighted-summing them. RandomDance agent needs to
-            judge which weighted function is effective and the types of the opponents. However, they depend on the
-            domains, agents’ strategies and so on. RandomDance agent selects the weighted function and opponent’s
-            weighting, randomly. [Kakimoto2017]_
+    **RandomDance agent by Shinji Kakimoto**:
+        In multi-lateral negotiations, agents need to simultaneously estimate the utility functions of more than two
+        agents. RandomDance agent proposes an estimating method that uses simple weighted functions by counting the
+        opponent's evaluation value for each issue. For multi-lateral negotiations, RandomDance agent considers some
+        utility functions as the `single` utility function by weighted-summing them. RandomDance agent needs to
+        judge which weighted function is effective and the types of the opponents. However, they depend on the
+        domains, agents' strategies and so on. RandomDance agent selects the weighted function and opponent's
+        weighting, randomly. [Kakimoto2017]_
 
-        ANAC 2015 individual utility category finalist.
+    ANAC 2015 individual utility category finalist.
 
-        .. [Kakimoto2017] Kakimoto, S., Fujita, K. (2017). RandomDance: Compromising Strategy Considering Interdependencies of Issues with Randomness. In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. <https://doi.org/10.1007/978-3-319-51563-2_13>
+    .. [Kakimoto2017] Kakimoto, S., Fujita, K. (2017). RandomDance: Compromising Strategy Considering Interdependencies of Issues with Randomness. In: Fujita, K., et al. Modern Approaches to Agent-based Complex Automated Negotiation. Studies in Computational Intelligence, vol 674. Springer, Cham. <https://doi.org/10.1007/978-3-319-51563-2_13>
+
+    .. note::
+        This description was AI-generated based on the referenced paper and source code analysis.
     """
+
     NashCountMax: int
     NumberOfAcceptSafety: int
     NumberOfRandomTargetCheck: int
@@ -157,14 +161,14 @@ class RandomDance(nenv.AbstractAgent):
         self.NumberOfAcceptSafety = 5
         self.NumberOfRandomTargetCheck = 3
         self.utilityDatas = {}
-        self.myData = PlayerData(self.preference.issues, 1.)
+        self.myData = PlayerData(self.preference.issues, 1.0)
         self.myData.SetMyUtility(self.preference)
         self.nash = []
         self.olderBidMap = {}
         self.olderBid = None
-        self.discountFactor = 1.
+        self.discountFactor = 1.0
         self.reservationValue = self.preference.reservation_value
-        self.olderTime = 0.
+        self.olderTime = 0.0
 
     def receive_offer(self, bid: Bid, t: float):
         sender = "OpponentAgent"
@@ -179,14 +183,17 @@ class RandomDance(nenv.AbstractAgent):
         self.utilityDatas[sender].AddBid(self.olderBid)
 
     def act(self, t: float) -> Action:
-        utilityMap = {s: self.utilityDatas[s].getRandomPlayerData() for s in self.utilityDatas.keys()}
+        utilityMap = {
+            s: self.utilityDatas[s].getRandomPlayerData()
+            for s in self.utilityDatas.keys()
+        }
         utilityMap["my"] = self.myData
 
         maxval: float = -999
         maxPlayer: Optional[str] = None
 
         for string in self.olderBidMap.keys():
-            utility = 1.
+            utility = 1.0
 
             for player in utilityMap.keys():
                 if string == player:
@@ -236,7 +243,7 @@ class RandomDance(nenv.AbstractAgent):
                 playerWeight[string] += 1
         elif rand == 1:
             for string in self.utilityDatas.keys():
-                playerWeight[string] = 1.
+                playerWeight[string] = 1.0
         elif rand == 2:
             flag = random.random() < 0.5
 
@@ -245,7 +252,7 @@ class RandomDance(nenv.AbstractAgent):
                     continue
 
                 if flag:
-                    playerWeight[string] = 1.
+                    playerWeight[string] = 1.0
                 else:
                     playerWeight[string] = 0.01
 
@@ -263,7 +270,7 @@ class RandomDance(nenv.AbstractAgent):
         if not self.can_accept():
             return False
 
-        if time + d * self.NumberOfAcceptSafety > 1.:
+        if time + d * self.NumberOfAcceptSafety > 1.0:
             return True
 
         if self.olderBid is None:
@@ -284,19 +291,19 @@ class RandomDance(nenv.AbstractAgent):
 
             for str in self.utilityDatas.keys():
                 utilityMap[str] = self.utilityDatas[str].getRandomPlayerData()
-                weights[str] = 1.
+                weights[str] = 1.0
 
             utilityMap["my"] = self.myData
-            weights["my"] = 1.
+            weights["my"] = 1.0
 
             bid = self.SearchBidWithWeights(utilityMap, weights)
 
             m = max(m, self.preference.get_utility(bid))
 
-        target = 1. - (1 - m) * math.pow(t, self.discountFactor)
+        target = 1.0 - (1 - m) * math.pow(t, self.discountFactor)
 
         if self.discountFactor > 0.99:
-            target = 1. - (1. - m) * math.pow(t, 3)
+            target = 1.0 - (1.0 - m) * math.pow(t, 3)
 
         return target
 
@@ -310,7 +317,7 @@ class RandomDance(nenv.AbstractAgent):
             maxValue = None
 
             for value in values:
-                v = 0.
+                v = 0.0
 
                 for string in datas.keys():
                     data = datas[string]
@@ -334,9 +341,9 @@ class RandomDance(nenv.AbstractAgent):
 
         weightbuf = {key: value / s for key, value in weights.items()}
 
-        w = 0.
+        w = 0.0
         while w < 9.999:
-            myweight = w / (1. - w)
+            myweight = w / (1.0 - w)
             weightbuf["my"] = myweight
             bid = self.SearchBidWithWeights(map, weightbuf)
             if self.preference.get_utility(bid) > target:
