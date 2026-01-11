@@ -1,6 +1,6 @@
 [project]
 name = "negmas-negolog"
-version = "0.1.2"
+version = "0.2.0"
 description = "NegMAS wrappers for NegoLog negotiating agents"
 readme = "README.md"
 authors = [
@@ -34,6 +34,10 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings>=1.0.0",
+    "mkdocstrings-python>=2.0.1",
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
 ]
@@ -49,9 +53,9 @@ exclude = ["vendor/*"]
 
 [tool.ruff.lint]
 # E402: Module level import not at top of file
-# This is intentionally violated in wrapper.py and test_equivalence.py because
+# This is intentionally violated in common.py and test_equivalence.py because
 # we need to modify sys.path before importing vendored NegoLog modules
-per-file-ignores = { "src/negmas_negolog/wrapper.py" = ["E402"], "tests/test_equivalence.py" = ["E402"] }
+per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equivalence.py" = ["E402"] }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
