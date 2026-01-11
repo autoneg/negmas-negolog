@@ -1,10 +1,10 @@
 site_name: negmas-negolog
 site_description: Bridge between NegMAS and NegoLog negotiation frameworks
 site_author: Yasser Mohammad
-site_url: https://yasserfarouk.github.io/negmas-negolog/
+site_url: https://autoneg.github.io/negmas-negolog/
 
-repo_name: yasserfarouk/negmas-negolog
-repo_url: https://github.com/yasserfarouk/negmas-negolog
+repo_name: autoneg/negmas-negolog
+repo_url: https://github.com/autoneg/negmas-negolog
 
 copyright: Copyright &copy; 2024 Yasser Mohammad
 
@@ -70,3 +70,4 @@ nav:
   - Development:
     - Contributing: development/contributing.md
     - Architecture: development/architecture.md
+    - Testing: development/testing.md
