@@ -15,8 +15,7 @@ class ConcederAgent(NegologNegotiatorWrapper):
     **Offering Strategy:**
         Uses a quadratic Bézier curve to calculate target utility over time:
 
-        .. math::
-            TU = (1-t)^2 P_0 + 2(1-t)t P_1 + t^2 P_2
+        $$TU = (1-t)^2 P_0 + 2(1-t)t P_1 + t^2 P_2$$
 
         where t is normalized time [0,1], P0=1.0 (initial utility),
         P1=0.55 (control point), and P2=0.4 (final utility). The low P1 value

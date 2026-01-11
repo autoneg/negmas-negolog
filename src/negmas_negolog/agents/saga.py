@@ -18,9 +18,7 @@ class SAGAAgent(NegologNegotiatorWrapper):
     **Offering Strategy:**
         Uses a time-dependent target utility function:
 
-        .. math::
-
-            target(t) = target_{min} + (1 - target_{min}) \\cdot (1 - t^5)
+        $$target(t) = target_{min} + (1 - target_{min}) \cdot (1 - t^5)$$
 
         where target_min is derived from the utility of the first received
         bid: target_min = firstUtil + 0.6 * (1 - firstUtil).

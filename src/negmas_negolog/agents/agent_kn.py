@@ -20,9 +20,7 @@ class AgentKN(NegologNegotiatorWrapper):
         while starting from a random initial bid. The bids are then scored
         using a combined metric:
 
-        .. math::
-
-            score = utility + 0.1^{(\\log_{10}(frequency)+1)} \\cdot frequency \\cdot utility
+        $$score = utility + 0.1^{(\log_{10}(frequency)+1)} \cdot frequency \cdot utility$$
 
         where frequency is the sum of opponent-offered value frequencies.
         This encourages bids that are both high-utility and contain values
@@ -31,18 +29,14 @@ class AgentKN(NegologNegotiatorWrapper):
     **Acceptance Strategy:**
         Accepts when the opponent's bid exceeds a dynamic threshold:
 
-        .. math::
-
-            threshold(t) = 1 - (1 - e_{max}(t)) \\cdot t^\\alpha
+        $$threshold(t) = 1 - (1 - e_{max}(t)) \cdot t^\alpha$$
 
         where alpha > 1 controls concession rate and e_max(t) is the
         estimated maximum utility the opponent might offer, calculated as:
 
-        .. math::
+        $$e_{max}(t) = \mu(t) + (1 - \mu(t)) \cdot d(t)$$
 
-            e_{max}(t) = \\mu(t) + (1 - \\mu(t)) \\cdot d(t)
-
-            d(t) = \\frac{\\sqrt{3} \\cdot \\sigma(t)}{\\sqrt{\\mu(t) \\cdot (1 - \\mu(t))}}
+        $$d(t) = \frac{\sqrt{3} \cdot \sigma(t)}{\sqrt{\mu(t) \cdot (1 - \mu(t))}}$$
 
         where mu(t) is the mean and sigma(t) is the standard deviation of
         utilities from opponent offers.

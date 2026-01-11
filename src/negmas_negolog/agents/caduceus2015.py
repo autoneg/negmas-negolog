@@ -41,9 +41,7 @@ class Caduceus2015(NegologNegotiatorWrapper):
 
         - Tracks issue-value frequencies using a "round value" weight:
 
-          .. math::
-
-              roundValue = 2t^2 - 101t + 100
+          $$roundValue = 2t^2 - 101t + 100$$
 
           This gives high weight to early observations that decreases
           over time.

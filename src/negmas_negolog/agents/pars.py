@@ -27,9 +27,7 @@ class ParsAgent(NegologNegotiatorWrapper):
 
         Target utility follows Boulware-style concession:
 
-        .. math::
-
-            target(t) = 1 - t^{1/e}
+        $$target(t) = 1 - t^{1/e}$$
 
         where e = 0.15 (or 0.2 with discount factor). Minimum threshold is 0.7.
 

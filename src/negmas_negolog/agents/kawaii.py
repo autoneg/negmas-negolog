@@ -31,18 +31,14 @@ class Kawaii(NegologNegotiatorWrapper):
     **Acceptance Strategy:**
         Time-dependent threshold with conceder behavior (exponent = 2):
 
-        .. math::
-
-            threshold(t) = 1 - (1 - a) \\cdot t^2
+        $$threshold(t) = 1 - (1 - a) \cdot t^2$$
 
         where a = 0.8 is the minimum threshold.
 
         In multilateral scenarios, the threshold is reduced based on how
         many opponents have already accepted:
 
-        .. math::
-
-            threshold -= (threshold - minThreshold) \\cdot \\frac{acceptCount}{numOpponents}
+        $$threshold -= (threshold - minThreshold) \cdot \frac{acceptCount}{numOpponents}$$
 
         This encourages acceptance when close to agreement.
 

@@ -31,9 +31,7 @@ class Rubick(NegologNegotiatorWrapper):
     **Acceptance Strategy:**
         Time-based with randomness to prevent exploitation:
 
-        .. math::
-
-            target = 1 - t^{power} \\cdot |\\mathcal{N}(0, 1/3)|
+        $$target = 1 - t^{power} \cdot |\mathcal{N}(0, 1/3)|$$
 
         where power is randomly 2, 3, or 10 based on opponent behavior.
         The target is bounded by the maximum received utility.

@@ -18,9 +18,7 @@ class HybridAgent(NegologNegotiatorWrapper):
 
         1. **Time-Based (Bezier curve)**:
 
-           .. math::
-
-               target_{time}(t) = (1-t)^2 p_0 + 2(1-t)t \\cdot p_1 + t^2 \\cdot p_2
+           $$target_{time}(t) = (1-t)^2 p_0 + 2(1-t)t \cdot p_1 + t^2 \cdot p_2$$
 
            where p0=1.0, p1=0.75, p2=0.55 (bounded by reservation value).
 
@@ -33,9 +31,7 @@ class HybridAgent(NegologNegotiatorWrapper):
 
         Combined target (after first 2 rounds):
 
-        .. math::
-
-            target = (1-t^2) \\cdot target_{behavior} + t^2 \\cdot target_{time}
+        $$target = (1-t^2) \cdot target_{behavior} + t^2 \cdot target_{time}$$
 
         This starts behavior-focused and shifts to time-based near deadline.
 

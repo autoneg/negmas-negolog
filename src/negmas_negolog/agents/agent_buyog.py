@@ -21,9 +21,7 @@ class AgentBuyog(NegologNegotiatorWrapper):
         1. Calculates acceptance threshold based on estimated opponent
            difficulty and time-based concession:
 
-           .. math::
-
-               threshold = minPoint + (1 - minPoint) \\cdot (1 - t^{1.8})
+           $$threshold = minPoint + (1 - minPoint) \cdot (1 - t^{1.8})$$
 
         2. Searches for bids at or above threshold that are closest to
            the estimated Kalai point (maximizing social welfare)
