@@ -16,44 +16,44 @@ class AgentBuyog(NegologNegotiatorWrapper):
     (social welfare maximum).
 
     **Offering Strategy:**
-        Selects bids based on domain competitiveness and opponent difficulty:
+    Selects bids based on domain competitiveness and opponent difficulty:
 
-        1. Calculates acceptance threshold based on estimated opponent
-           difficulty and time-based concession:
+    1. Calculates acceptance threshold based on estimated opponent
+       difficulty and time-based concession:
 
-           $$threshold = minPoint + (1 - minPoint) \cdot (1 - t^{1.8})$$
+    $$threshold = minPoint + (1 - minPoint) \cdot (1 - t^{1.8})$$
 
-        2. Searches for bids at or above threshold that are closest to
-           the estimated Kalai point (maximizing social welfare)
-        3. If common bids exist (offered by multiple opponents), prefers
-           those with highest utility
+    2. Searches for bids at or above threshold that are closest to
+       the estimated Kalai point (maximizing social welfare)
+    3. If common bids exist (offered by multiple opponents), prefers
+       those with highest utility
 
-        Near deadline (remaining rounds <= 3), threshold is halved.
+    Near deadline (remaining rounds <= 3), threshold is halved.
 
     **Acceptance Strategy:**
-        Multi-criteria acceptance based on:
+    Multi-criteria acceptance based on:
 
-        - Most recent offer utility vs. threshold
-        - Best agreeable bid utility (common to both opponents)
-        - Generated bid utility
+    - Most recent offer utility vs. threshold
+    - Best agreeable bid utility (common to both opponents)
+    - Generated bid utility
 
-        Accepts if opponent's offer exceeds all other options and the
-        acceptance threshold, especially when near deadline.
+    Accepts if opponent's offer exceeds all other options and the
+    acceptance threshold, especially when near deadline.
 
     **Opponent Modeling:**
-        Sophisticated multi-component model:
+    Sophisticated multi-component model:
 
-        - **Concession estimation**: Uses weighted regression to fit
-          exponential concession function exp(alpha) * t^beta to opponent
-          bid utilities over time
-        - **Leniency calculation**: Derived from slope of estimated
-          concession curve, adjusted by a leniency factor
-        - **Preference estimation**: Frequency-based issue weight and
-          value estimation, normalized after each update
-        - **Kalai point estimation**: Finds social welfare maximum
-          using estimated opponent preferences
-        - **Agent difficulty**: Combined metric of leniency and domain
-          competitiveness to assess how hard to negotiate with
+    - **Concession estimation**: Uses weighted regression to fit
+      exponential concession function exp(alpha) * t^beta to opponent
+      bid utilities over time
+    - **Leniency calculation**: Derived from slope of estimated
+      concession curve, adjusted by a leniency factor
+    - **Preference estimation**: Frequency-based issue weight and
+      value estimation, normalized after each update
+    - **Kalai point estimation**: Finds social welfare maximum
+      using estimated opponent preferences
+    - **Agent difficulty**: Combined metric of leniency and domain
+      competitiveness to assess how hard to negotiate with
 
     References:
         .. [Fujita2017] Fujita, K., Aydogan, R., Baarslag, T., Hindriks, K.,

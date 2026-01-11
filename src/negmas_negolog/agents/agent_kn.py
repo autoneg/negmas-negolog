@@ -16,38 +16,38 @@ class AgentKN(NegologNegotiatorWrapper):
     with opponent value frequency analysis.
 
     **Offering Strategy:**
-        Uses Simulated Annealing to search for 10 bids that maximize utility
-        while starting from a random initial bid. The bids are then scored
-        using a combined metric:
+    Uses Simulated Annealing to search for 10 bids that maximize utility
+    while starting from a random initial bid. The bids are then scored
+    using a combined metric:
 
-        $$score = utility + 0.1^{(\log_{10}(frequency)+1)} \cdot frequency \cdot utility$$
+    $$score = utility + 0.1^{(\log_{10}(frequency)+1)} \cdot frequency \cdot utility$$
 
-        where frequency is the sum of opponent-offered value frequencies.
-        This encourages bids that are both high-utility and contain values
-        the opponent has frequently requested.
+    where frequency is the sum of opponent-offered value frequencies.
+    This encourages bids that are both high-utility and contain values
+    the opponent has frequently requested.
 
     **Acceptance Strategy:**
-        Accepts when the opponent's bid exceeds a dynamic threshold:
+    Accepts when the opponent's bid exceeds a dynamic threshold:
 
-        $$threshold(t) = 1 - (1 - e_{max}(t)) \cdot t^\alpha$$
+    $$threshold(t) = 1 - (1 - e_{max}(t)) \cdot t^\alpha$$
 
-        where alpha > 1 controls concession rate and e_max(t) is the
-        estimated maximum utility the opponent might offer, calculated as:
+    where alpha > 1 controls concession rate and e_max(t) is the
+    estimated maximum utility the opponent might offer, calculated as:
 
-        $$e_{max}(t) = \mu(t) + (1 - \mu(t)) \cdot d(t)$$
+    $$e_{max}(t) = \mu(t) + (1 - \mu(t)) \cdot d(t)$$
 
-        $$d(t) = \frac{\sqrt{3} \cdot \sigma(t)}{\sqrt{\mu(t) \cdot (1 - \mu(t))}}$$
+    $$d(t) = \frac{\sqrt{3} \cdot \sigma(t)}{\sqrt{\mu(t) \cdot (1 - \mu(t))}}$$
 
-        where mu(t) is the mean and sigma(t) is the standard deviation of
-        utilities from opponent offers.
+    where mu(t) is the mean and sigma(t) is the standard deviation of
+    utilities from opponent offers.
 
     **Opponent Modeling:**
-        Tracks value frequencies for each issue across opponent bids:
+    Tracks value frequencies for each issue across opponent bids:
 
-        - Updates issue weights when consecutive bids have the same value
-        - Maintains normalized value frequency counts per issue
-        - Uses statistical analysis (mean, std) of opponent bid utilities
-          to estimate the opponent's bidding range
+    - Updates issue weights when consecutive bids have the same value
+    - Maintains normalized value frequency counts per issue
+    - Uses statistical analysis (mean, std) of opponent bid utilities
+      to estimate the opponent's bidding range
 
     References:
         .. [Aydogan2021] Reyhan Aydogan, Katsuhide Fujita, Tim Baarslag,

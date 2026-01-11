@@ -16,37 +16,37 @@ class Kawaii(NegologNegotiatorWrapper):
     multilateral negotiations.
 
     **Offering Strategy:**
-        Uses Simulated Annealing to search for bids near the target utility:
+    Uses Simulated Annealing to search for bids near the target utility:
 
-        1. First attempts relative utility search (for linear utility spaces)
-           by selecting values that sum to the target concession amount
-        2. Falls back to Simulated Annealing with parameters:
-           - Start temperature: 1.0
-           - End temperature: 0.0001
-           - Cooling rate: 0.999
+    1. First attempts relative utility search (for linear utility spaces)
+       by selecting values that sum to the target concession amount
+    2. Falls back to Simulated Annealing with parameters:
+       - Start temperature: 1.0
+       - End temperature: 0.0001
+       - Cooling rate: 0.999
 
-        The search minimizes the distance to target utility while staying
-        above it. Returns the maximum utility bid if no suitable bid found.
+    The search minimizes the distance to target utility while staying
+    above it. Returns the maximum utility bid if no suitable bid found.
 
     **Acceptance Strategy:**
-        Time-dependent threshold with conceder behavior (exponent = 2):
+    Time-dependent threshold with conceder behavior (exponent = 2):
 
-        $$threshold(t) = 1 - (1 - a) \cdot t^2$$
+    $$threshold(t) = 1 - (1 - a) \cdot t^2$$
 
-        where a = 0.8 is the minimum threshold.
+    where a = 0.8 is the minimum threshold.
 
-        In multilateral scenarios, the threshold is reduced based on how
-        many opponents have already accepted:
+    In multilateral scenarios, the threshold is reduced based on how
+    many opponents have already accepted:
 
-        $$threshold -= (threshold - minThreshold) \cdot \frac{acceptCount}{numOpponents}$$
+    $$threshold -= (threshold - minThreshold) \cdot \frac{acceptCount}{numOpponents}$$
 
-        This encourages acceptance when close to agreement.
+    This encourages acceptance when close to agreement.
 
     **Opponent Modeling:**
-        Tracks which opponents have made accepting moves (offered bids
-        close to previous offers). This information adjusts the acceptance
-        threshold to facilitate agreement when multiple parties are close
-        to consensus.
+    Tracks which opponents have made accepting moves (offered bids
+    close to previous offers). This information adjusts the acceptance
+    threshold to facilitate agreement when multiple parties are close
+    to consensus.
 
     References:
         .. [Baarslag2015] Baarslag, T., Aydogan, R., Hindriks, K. V.,

@@ -14,40 +14,40 @@ class HybridAgent(NegologNegotiatorWrapper):
     emotional and opponent-aware human-robot negotiation research.
 
     **Offering Strategy:**
-        Combines two strategies with time-varying weights:
+    Combines two strategies with time-varying weights:
 
-        1. **Time-Based (Bezier curve)**:
+    1. **Time-Based (Bezier curve)**:
 
-           $$target_{time}(t) = (1-t)^2 p_0 + 2(1-t)t \cdot p_1 + t^2 \cdot p_2$$
+    $$target_{time}(t) = (1-t)^2 p_0 + 2(1-t)t \cdot p_1 + t^2 \cdot p_2$$
 
-           where p0=1.0, p1=0.75, p2=0.55 (bounded by reservation value).
+    where p0=1.0, p1=0.75, p2=0.55 (bounded by reservation value).
 
-        2. **Behavior-Based**: Mirrors opponent concession moves using a
-           weighted window of recent utility differences:
+    2. **Behavior-Based**: Mirrors opponent concession moves using a
+    weighted window of recent utility differences:
 
-           - Window weights: {1: [1], 2: [0.25, 0.75], 3: [0.11, 0.22, 0.66],
-             4: [0.05, 0.15, 0.3, 0.5]}
-           - Empathy parameter p3=0.5 controls response magnitude
+    - Window weights: {1: [1], 2: [0.25, 0.75], 3: [0.11, 0.22, 0.66],
+      4: [0.05, 0.15, 0.3, 0.5]}
+    - Empathy parameter p3=0.5 controls response magnitude
 
-        Combined target (after first 2 rounds):
+    Combined target (after first 2 rounds):
 
-        $$target = (1-t^2) \cdot target_{behavior} + t^2 \cdot target_{time}$$
+    $$target = (1-t^2) \cdot target_{behavior} + t^2 \cdot target_{time}$$
 
-        This starts behavior-focused and shifts to time-based near deadline.
+    This starts behavior-focused and shifts to time-based near deadline.
 
     **Acceptance Strategy:**
-        AC_Next strategy: accepts if opponent's last offer utility exceeds
-        the current target utility. Simple but effective when combined
-        with the hybrid target calculation.
+    AC_Next strategy: accepts if opponent's last offer utility exceeds
+    the current target utility. Simple but effective when combined
+    with the hybrid target calculation.
 
     **Opponent Modeling:**
-        Implicit modeling through behavior-based component:
+    Implicit modeling through behavior-based component:
 
-        - Tracks utility differences between consecutive opponent offers
-        - Uses weighted window to emphasize recent moves (recent moves
-          have higher weight)
-        - Adapts own concession rate based on opponent's concession pattern
-        - Empathy factor increases with time: (p3 + p3 * t)
+    - Tracks utility differences between consecutive opponent offers
+    - Uses weighted window to emphasize recent moves (recent moves
+      have higher weight)
+    - Adapts own concession rate based on opponent's concession pattern
+    - Empathy factor increases with time: (p3 + p3 * t)
 
     References:
         .. [Keskin2021] Mehmet Onur Keskin, Umut Cakan, and Reyhan Aydogan.

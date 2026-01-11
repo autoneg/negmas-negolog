@@ -16,33 +16,33 @@ class SAGAAgent(NegologNegotiatorWrapper):
     time-based bidding and acceptance strategies.
 
     **Offering Strategy:**
-        Uses a time-dependent target utility function:
+    Uses a time-dependent target utility function:
 
-        $$target(t) = target_{min} + (1 - target_{min}) \cdot (1 - t^5)$$
+    $$target(t) = target_{min} + (1 - target_{min}) \cdot (1 - t^5)$$
 
-        where target_min is derived from the utility of the first received
-        bid: target_min = firstUtil + 0.6 * (1 - firstUtil).
+    where target_min is derived from the utility of the first received
+    bid: target_min = firstUtil + 0.6 * (1 - firstUtil).
 
-        Bids are randomly generated above the target utility threshold.
+    Bids are randomly generated above the target utility threshold.
 
     **Acceptance Strategy:**
-        Employs a three-phase probabilistic acceptance strategy:
+    Employs a three-phase probabilistic acceptance strategy:
 
-        - **Phase 1 (t <= 0.6)**: Probabilistic acceptance based on how much
-          the offer exceeds the target. Uses power function with exponent
-          that increases as time approaches 0.5.
-        - **Phase 2 (0.6 < t < 0.997)**: Gradually increasing acceptance
-          probability for bids below target, with linear interpolation.
-        - **Phase 3 (t >= 0.997)**: Near deadline, accepts with probability
-          proportional to utility squared.
+    - **Phase 1 (t <= 0.6)**: Probabilistic acceptance based on how much
+      the offer exceeds the target. Uses power function with exponent
+      that increases as time approaches 0.5.
+    - **Phase 2 (0.6 < t < 0.997)**: Gradually increasing acceptance
+      probability for bids below target, with linear interpolation.
+    - **Phase 3 (t >= 0.997)**: Near deadline, accepts with probability
+      proportional to utility squared.
 
-        Always rejects offers below reservation value.
+    Always rejects offers below reservation value.
 
     **Opponent Modeling:**
-        SAGA Agent was designed to use Genetic Algorithm to estimate
-        preferences, though the current implementation uses actual
-        preferences. The GA approach uses Spearman rank correlation as
-        the fitness metric to evaluate preference estimation quality.
+    SAGA Agent was designed to use Genetic Algorithm to estimate
+    preferences, though the current implementation uses actual
+    preferences. The GA approach uses Spearman rank correlation as
+    the fitness metric to evaluate preference estimation quality.
 
     References:
         .. [Aydogan2020] Aydogan, R. et al. (2020). Challenges and Main

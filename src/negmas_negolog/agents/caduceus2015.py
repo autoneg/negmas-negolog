@@ -16,40 +16,40 @@ class Caduceus2015(NegologNegotiatorWrapper):
     opponent modeling to estimate opponent preferences.
 
     **Offering Strategy:**
-        Two-phase bidding approach based on time:
+    Two-phase bidding approach based on time:
 
-        1. **Early phase (t < 0.83)**: Offers the best bid (maximum utility)
-           to establish a strong opening position.
+    1. **Early phase (t < 0.83)**: Offers the best bid (maximum utility)
+       to establish a strong opening position.
 
-        2. **Later phase (t >= 0.83)**: Calculates Nash product across all
-           parties using estimated opponent utility spaces:
-           - Computes Nash bid that maximizes product of utilities
-           - Uses CounterOfferGenerator to generate bids around Nash point
-           - Ensures bid utility stays above reservation value (min 0.75)
+    2. **Later phase (t >= 0.83)**: Calculates Nash product across all
+       parties using estimated opponent utility spaces:
+       - Computes Nash bid that maximizes product of utilities
+       - Uses CounterOfferGenerator to generate bids around Nash point
+       - Ensures bid utility stays above reservation value (min 0.75)
 
-        If generated bid has lower utility than opponent's last offer
-        (by margin > 0.2), accepts instead.
+    If generated bid has lower utility than opponent's last offer
+    (by margin > 0.2), accepts instead.
 
     **Acceptance Strategy:**
-        Implicit acceptance based on bid comparison: if the opponent's
-        previous bid has utility exceeding the generated counter-offer
-        by more than 0.2, the agent accepts. This creates a dynamic
-        acceptance threshold based on what the agent can offer.
+    Implicit acceptance based on bid comparison: if the opponent's
+    previous bid has utility exceeding the generated counter-offer
+    by more than 0.2, the agent accepts. This creates a dynamic
+    acceptance threshold based on what the agent can offer.
 
     **Opponent Modeling:**
-        Frequency-based preference estimation with time-weighted updates:
+    Frequency-based preference estimation with time-weighted updates:
 
-        - Tracks issue-value frequencies using a "round value" weight:
+    - Tracks issue-value frequencies using a "round value" weight:
 
-          $$roundValue = 2t^2 - 101t + 100$$
+    $$roundValue = 2t^2 - 101t + 100$$
 
-          This gives high weight to early observations that decreases
-          over time.
+    This gives high weight to early observations that decreases
+    over time.
 
-        - Extra weight given to values that remain unchanged between
-          consecutive opponent bids (stability bonus)
-        - Constructs SaneUtilitySpace for each opponent to estimate
-          their preferences
+    - Extra weight given to values that remain unchanged between
+      consecutive opponent bids (stability bonus)
+    - Constructs SaneUtilitySpace for each opponent to estimate
+      their preferences
 
     References:
         .. [Gunes2017] Gunes, T.D., Arditi, E., Aydogan, R. (2017).

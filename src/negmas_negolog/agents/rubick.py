@@ -16,37 +16,37 @@ class Rubick(NegologNegotiatorWrapper):
     concession with increasing variance over time.
 
     **Offering Strategy:**
-        Generates bids above a target utility using opponent model insights:
+    Generates bids above a target utility using opponent model insights:
 
-        - Searches for bids that maximize intersection with opponent's
-          most frequently offered values (frequency-based search)
-        - If no suitable bid found via opponent model, falls back to
-          nearest bid to target utility
-        - Near deadline (t > 0.995), offers from a cached list of
-          previously accepted bids
+    - Searches for bids that maximize intersection with opponent's
+      most frequently offered values (frequency-based search)
+    - If no suitable bid found via opponent model, falls back to
+      nearest bid to target utility
+    - Near deadline (t > 0.995), offers from a cached list of
+      previously accepted bids
 
-        Target utility follows randomized Boulware with power parameter
-        randomly selected based on max received utility.
+    Target utility follows randomized Boulware with power parameter
+    randomly selected based on max received utility.
 
     **Acceptance Strategy:**
-        Time-based with randomness to prevent exploitation:
+    Time-based with randomness to prevent exploitation:
 
-        $$target = 1 - t^{power} \cdot |\mathcal{N}(0, 1/3)|$$
+    $$target = 1 - t^{power} \cdot |\mathcal{N}(0, 1/3)|$$
 
-        where power is randomly 2, 3, or 10 based on opponent behavior.
-        The target is bounded by the maximum received utility.
-        Accepts if opponent offer exceeds target or time > 0.999.
+    where power is randomly 2, 3, or 10 based on opponent behavior.
+    The target is bounded by the maximum received utility.
+    Accepts if opponent offer exceeds target or time > 0.999.
 
     **Opponent Modeling:**
-        Employs frequency-based opponent modeling:
+    Employs frequency-based opponent modeling:
 
-        - Tracks value frequencies for each issue per opponent
-        - Extracts "bags" of preferred values (above median frequency)
-        - Scores bids by counting intersections with opponent preferences
-        - Maintains separate models for multilateral scenarios
+    - Tracks value frequencies for each issue per opponent
+    - Extracts "bags" of preferred values (above median frequency)
+    - Scores bids by counting intersections with opponent preferences
+    - Maintains separate models for multilateral scenarios
 
-        Also keeps a sorted list of bids that were accepted by opponents
-        in previous negotiations for use near the deadline.
+    Also keeps a sorted list of bids that were accepted by opponents
+    in previous negotiations for use near the deadline.
 
     References:
         .. [Aydogan2021] Reyhan Aydogan, Katsuhide Fujita, Tim Baarslag,
