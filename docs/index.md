@@ -49,7 +49,7 @@ A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](
 
 ## Features
 
-- **25 NegoLog agents** available as NegMAS negotiators
+- **25 NegoLog agents** available as NegMAS negotiators (see [Available Agents](user-guide/agents.md))
 - **Seamless integration** with NegMAS mechanisms and tournaments
 - **Full compatibility** with NegMAS utility functions and outcome spaces
 - **Zero configuration** - agents work out of the box
