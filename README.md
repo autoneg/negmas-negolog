@@ -6,9 +6,12 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/negmas-negolog.svg)](https://pypi.python.org/pypi/negmas-negolog)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Tests](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml/badge.svg)](https://github.com/autoneg/negmas-negolog/actions/workflows/test.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://autoneg.github.io/negmas-negolog/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 A bridge between [NegMAS](https://github.com/yasserfarouk/negmas) and [NegoLog](https://github.com/aniltrue/NegoLog) negotiation frameworks, allowing NegoLog agents to be used as NegMAS SAONegotiator instances.
+
+**[Documentation](https://autoneg.github.io/negmas-negolog/)** | **[API Reference](https://autoneg.github.io/negmas-negolog/api/wrappers/)** | **[Available Agents](https://autoneg.github.io/negmas-negolog/user-guide/agents/)**
 
 ---
 
@@ -276,10 +279,16 @@ See the [latest comparison report](reports/behavior_comparison_report.md) for cu
 negmas-negolog/
 ├── src/negmas_negolog/
 │   ├── __init__.py      # Package exports
-│   └── wrapper.py       # Wrapper implementation
+│   ├── common.py        # Base classes (NegologNegotiatorWrapper, NegologPreferenceAdapter)
+│   └── agents/          # Individual agent wrapper modules
+│       ├── atlas3.py
+│       ├── boulware.py
+│       ├── conceder.py
+│       └── ...          # 25 agent wrappers total
 ├── vendor/NegoLog/      # Vendored NegoLog library
 │   ├── agents/          # NegoLog agent implementations
 │   └── nenv/            # NegoLog environment
+├── docs/                # Documentation source
 ├── scripts/
 │   └── compare_behavior.py  # Behavior comparison script
 ├── reports/             # Generated comparison reports
