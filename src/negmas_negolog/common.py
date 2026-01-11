@@ -1,9 +1,9 @@
 """
-Wrapper classes to bridge NegoLog negotiating agents to NegMAS SAONegotiator interface.
+Common classes and utilities for bridging NegoLog agents to NegMAS.
 
-This module provides the NegologNegotiatorWrapper base class and concrete wrapper
-classes for all NegoLog agents. Wrapper classes share the same names as their
-NegoLog counterparts for ease of use.
+This module provides:
+- NegologPreferenceAdapter: Adapts NegMAS utility functions to NegoLog Preference interface
+- NegologNegotiatorWrapper: Base class for all NegoLog agent wrappers
 """
 
 from __future__ import annotations
@@ -69,44 +69,18 @@ def _patched_estimated_preference_init(self, reference: Preference):
 
 EstimatedPreference.__init__ = _patched_estimated_preference_init
 
-from negmas.outcomes import Outcome
-from negmas.preferences import BaseUtilityFunction
-from negmas.sao.common import ResponseType, SAOState
-from negmas.sao.negotiators.base import SAONegotiator
+from negmas.outcomes import Outcome  # noqa: E402
+from negmas.preferences import BaseUtilityFunction  # noqa: E402
+from negmas.sao.common import ResponseType, SAOState  # noqa: E402
+from negmas.sao.negotiators.base import SAONegotiator  # noqa: E402
 
 if TYPE_CHECKING:
     from negmas.situated import Agent
     from negmas.negotiators import Controller
 
 __all__ = [
+    "NegologPreferenceAdapter",
     "NegologNegotiatorWrapper",
-    # Time-based agents
-    "BoulwareAgent",
-    "ConcederAgent",
-    "LinearAgent",
-    # Competition agents
-    "MICROAgent",
-    "Atlas3Agent",
-    "NiceTitForTat",
-    "YXAgent",
-    "ParsCatAgent",
-    "PonPokoAgent",
-    "AgentGG",
-    "SAGAAgent",
-    "CUHKAgent",
-    "AgentKN",
-    "Rubick",
-    "AhBuNeAgent",
-    "ParsAgent",
-    "RandomDance",
-    "AgentBuyog",
-    "Kawaii",
-    "Caduceus2015",
-    "Caduceus",
-    "HardHeaded",
-    "IAMhaggler",
-    "LuckyAgent2022",
-    "HybridAgent",
 ]
 
 
@@ -304,7 +278,11 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
         self._issues: List[Issue] = []
         self._issue_names: List[str] = []
         self._initialized = False
-        self._step_count = 0
+        # Track the current negotiation step and cache act() results
+        # This prevents calling act() multiple times per step (which corrupts
+        # agent state for agents like AgentBuyog that increment round counters in act())
+        self._current_step: int = -1
+        self._cached_action = None
 
     def on_negotiation_start(self, state: SAOState) -> None:
         """
@@ -378,7 +356,8 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
         # Initialize the agent
         self._negolog_agent.initiate(opponent_name=None)
         self._initialized = True
-        self._step_count = 0
+        self._current_step = -1
+        self._cached_action = None
 
     def _get_relative_time(self, state: SAOState) -> float:
         """
@@ -391,6 +370,28 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
             Relative time between 0 and 1
         """
         return state.relative_time
+
+    def _get_action_for_step(self, state: SAOState):
+        """
+        Get the NegoLog action for the current step, with caching.
+
+        This method ensures act() is only called once per negotiation step,
+        which is critical because some NegoLog agents (like AgentBuyog) maintain
+        internal round counters that increment on each act() call.
+
+        Args:
+            state: Current negotiation state
+
+        Returns:
+            The cached or newly computed action from the NegoLog agent
+        """
+        current_step = state.step
+        if current_step != self._current_step:
+            # New step - call act() and cache the result
+            self._current_step = current_step
+            t = self._get_relative_time(state)
+            self._cached_action = self._negolog_agent.act(t)
+        return self._cached_action
 
     def _outcome_to_bid(self, outcome: Outcome) -> Bid:
         """Convert a NegMAS Outcome to a NegoLog Bid."""
@@ -421,10 +422,8 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
         if self._negolog_agent is None:
             return None
 
-        t = self._get_relative_time(state)
-
-        # Get action from NegoLog agent
-        action = self._negolog_agent.act(t)
+        # Get action (cached per step to avoid multiple act() calls)
+        action = self._get_action_for_step(state)
 
         if action is None:
             return None
@@ -459,8 +458,13 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
         bid = self._outcome_to_bid(offer)
         self._negolog_agent.receive_bid(bid, t)
 
-        # Get action from NegoLog agent
-        action = self._negolog_agent.act(t)
+        # Invalidate the cached action since we received a new bid
+        # The agent may now decide differently (e.g., to accept)
+        self._current_step = -1
+        self._cached_action = None
+
+        # Get action from NegoLog agent (will be cached for this step)
+        action = self._get_action_for_step(state)
 
         if action is None:
             return ResponseType.REJECT_OFFER
@@ -489,288 +493,3 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
         self._negolog_agent = None
         self._preference_adapter = None
         self._initialized = False
-
-
-# =============================================================================
-# Concrete Wrapper Classes for NegoLog Agents
-# =============================================================================
-
-# Import NegoLog agents (with correct module and class names)
-# Aliased with _NL suffix to avoid naming conflicts with wrapper classes
-from agents.boulware.Boulware import BoulwareAgent as _NLBoulwareAgent
-from agents.conceder.Conceder import ConcederAgent as _NLConcederAgent
-from agents.LinearAgent.LinearAgent import LinearAgent as _NLLinearAgent
-from agents.MICRO.MICRO import MICROAgent as _NLMICROAgent
-from agents.Atlas3.Atlas3Agent import Atlas3Agent as _NLAtlas3Agent
-from agents.NiceTitForTat.NiceTitForTat import NiceTitForTat as _NLNiceTitForTat
-from agents.YXAgent.YXAgent import YXAgent as _NLYXAgent
-from agents.ParsCat.ParsCat import ParsCatAgent as _NLParsCatAgent
-from agents.PonPoko.PonPoko import PonPokoAgent as _NLPonPokoAgent
-from agents.AgentGG.AgentGG import AgentGG as _NLAgentGG
-from agents.SAGA.SAGAAgent import SAGAAgent as _NLSAGAAgent
-from agents.CUHKAgent.CUHKAgent import CUHKAgent as _NLCUHKAgent
-from agents.AgentKN.AgentKN import AgentKN as _NLAgentKN
-from agents.Rubick.Rubick import Rubick as _NLRubick
-from agents.AhBuNeAgent.AhBuNeAgent import AhBuNeAgent as _NLAhBuNeAgent
-from agents.ParsAgent.ParsAgent import ParsAgent as _NLParsAgent
-from agents.RandomDance.RandomDance import RandomDance as _NLRandomDance
-from agents.AgentBuyog.AgentBuyog import AgentBuyog as _NLAgentBuyog
-from agents.Kawaii.Kawaii import Kawaii as _NLKawaii
-from agents.Caduceus2015.Caduceus import Caduceus2015 as _NLCaduceus2015
-from agents.Caduceus.Caduceus import Caduceus as _NLCaduceus
-from agents.HardHeaded.KLH import HardHeaded as _NLHardHeaded
-from agents.IAMhaggler.IAMhaggler import IAMhaggler as _NLIAMhaggler
-from agents.LuckyAgent2022.LuckyAgent2022 import LuckyAgent2022 as _NLLuckyAgent2022
-from agents.HybridAgent.HybridAgent import HybridAgent as _NLHybridAgent
-
-
-class BoulwareAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's BoulwareAgent.
-
-    Time-based concession agent that concedes slowly (sub-linearly).
-    Uses Bezier curve-based target utility calculation.
-    """
-
-    negolog_agent_class = _NLBoulwareAgent
-
-
-class ConcederAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's ConcederAgent.
-
-    Time-based concession agent that concedes quickly (super-linearly).
-    """
-
-    negolog_agent_class = _NLConcederAgent
-
-
-class LinearAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's LinearAgent.
-
-    Time-based concession agent that concedes linearly.
-    """
-
-    negolog_agent_class = _NLLinearAgent
-
-
-class MICROAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's MICROAgent.
-
-    ANAC competition agent using opponent modeling.
-    """
-
-    negolog_agent_class = _NLMICROAgent
-
-
-class Atlas3Agent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's Atlas3Agent.
-
-    ANAC 2015 competition winner agent.
-    """
-
-    negolog_agent_class = _NLAtlas3Agent
-
-
-class NiceTitForTat(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's NiceTitForTat agent.
-
-    Plays tit-for-tat strategy with respect to utility,
-    aiming for the Nash point. Uses Bayesian opponent modeling.
-    """
-
-    negolog_agent_class = _NLNiceTitForTat
-
-
-class YXAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's YXAgent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLYXAgent
-
-
-class ParsCatAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's ParsCatAgent.
-
-    ANAC competition agent from Amirkabir University.
-    """
-
-    negolog_agent_class = _NLParsCatAgent
-
-
-class PonPokoAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's PonPokoAgent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLPonPokoAgent
-
-
-class AgentGG(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's AgentGG.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLAgentGG
-
-
-class SAGAAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's SAGAAgent.
-
-    Uses genetic algorithm for bid selection.
-    """
-
-    negolog_agent_class = _NLSAGAAgent
-
-
-class CUHKAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's CUHKAgent.
-
-    ANAC competition agent from Chinese University of Hong Kong.
-    """
-
-    negolog_agent_class = _NLCUHKAgent
-
-
-class AgentKN(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's AgentKN.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLAgentKN
-
-
-class Rubick(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's Rubick agent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLRubick
-
-
-class AhBuNeAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's AhBuNeAgent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLAhBuNeAgent
-
-
-class ParsAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's ParsAgent.
-
-    ANAC competition agent from Amirkabir University.
-    """
-
-    negolog_agent_class = _NLParsAgent
-
-
-class RandomDance(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's RandomDance agent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLRandomDance
-
-
-class AgentBuyog(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's AgentBuyog.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLAgentBuyog
-
-
-class Kawaii(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's Kawaii agent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLKawaii
-
-
-class Caduceus2015(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's Caduceus2015 agent.
-
-    ANAC 2015 competition agent.
-    """
-
-    negolog_agent_class = _NLCaduceus2015
-
-
-class Caduceus(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's Caduceus agent.
-
-    ANAC competition agent.
-    """
-
-    negolog_agent_class = _NLCaduceus
-
-
-class HardHeaded(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's HardHeaded agent.
-
-    ANAC 2011 competition winner. Uses frequency-based opponent modeling.
-    """
-
-    negolog_agent_class = _NLHardHeaded
-
-
-class IAMhaggler(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's IAMhaggler agent.
-
-    ANAC competition agent from University of Southampton.
-    """
-
-    negolog_agent_class = _NLIAMhaggler
-
-
-class LuckyAgent2022(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's LuckyAgent2022.
-
-    ANAC 2022 competition agent.
-    """
-
-    negolog_agent_class = _NLLuckyAgent2022
-
-
-class HybridAgent(NegologNegotiatorWrapper):
-    """
-    NegMAS wrapper for NegoLog's HybridAgent.
-
-    Agent that combines multiple negotiation strategies.
-    """
-
-    negolog_agent_class = _NLHybridAgent

@@ -16,11 +16,14 @@ Example usage:
     >>> result = mechanism.run()
 """
 
-from negmas_negolog.wrapper import (
-    # Base wrapper class
+# Base wrapper classes and preference adapter
+from negmas_negolog.common import (
     NegologNegotiatorWrapper,
-    # Preference adapter
     NegologPreferenceAdapter,
+)
+
+# All agent wrappers from individual modules
+from negmas_negolog.agents import (
     # Time-based agents
     BoulwareAgent,
     ConcederAgent,
