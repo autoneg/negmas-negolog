@@ -26,3 +26,12 @@ repos:
       - id: ruff-format
         types_or: [python, pyi]
         exclude: ^vendor/
+
+  - repo: local
+    hooks:
+      - id: no-uv-sources
+        name: Prevent tool.uv.sources in pyproject.toml
+        language: pygrep
+        entry: "^\\[tool\\.uv\\.sources\\]"
+        files: ^pyproject\.toml$
+        types: [toml]
