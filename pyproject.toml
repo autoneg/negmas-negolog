@@ -62,6 +62,3 @@ per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equi
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-
-[tool.uv.sources]
-negmas = { path = "../negmas", editable = true }
