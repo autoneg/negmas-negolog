@@ -154,6 +154,49 @@ The following table lists all 26 available agents with their ANAC competition re
 | `HybridAgentWithOppModel` | — | Hybrid Agent extended with opponent modeling | [Yesevi et al. 2023](https://doi.org/10.1007/978-3-031-21203-1_23) |
 | `Caduceus2015` | — | Sub-agent for Caduceus portfolio | [Güneş et al. 2017](https://doi.org/10.1007/978-3-319-69131-2_27) |
 
+## Using the NegMAS Registry
+
+All NegoLog agents are automatically registered in the NegMAS negotiator registry when you import the package. This allows you to discover and instantiate agents dynamically:
+
+```python
+import negmas_negolog  # Triggers auto-registration
+from negmas import negotiator_registry
+
+# Query all negolog agents
+negolog_agents = negotiator_registry.query_by_tag("negolog")
+print(f"Found {len(negolog_agents)} NegoLog agents")
+
+# Query by ANAC competition year
+anac2015_agents = negotiator_registry.query_by_tag("anac-2015")
+
+# Query learning agents
+learning_agents = negotiator_registry.query_by_tag("learning")
+
+# Get a specific agent class by name
+AgentClass = negotiator_registry.get("Atlas3Agent").type
+agent = AgentClass(name="my_atlas3")
+
+# Combined queries
+from negmas.registry import query
+results = query(negotiator_registry, tags=["negolog", "frequency"], bilateral_only=True)
+```
+
+### Registry Tags
+
+Each agent is tagged with relevant metadata:
+- `negolog` - All agents from this package
+- `sao`, `propose`, `respond` - Negotiation capabilities
+- `anac`, `anac-YYYY` - ANAC competition participation
+- `time-based`, `learning`, `frequency`, `bayesian`, `tit-for-tat` - Strategy types
+
+### Naming Convention
+
+To avoid conflicts with Genius agents that share the same name, some agents are registered with an "NL" prefix:
+- Genius has `AgentGG`, negmas-negolog registers `NLAgentGG`
+- Genius has `HardHeaded`, negmas-negolog registers `NLHardHeaded`
+
+Agents unique to NegoLog keep their original names (e.g., `Atlas3Agent`, `BoulwareAgent`).
+
 ## Mixing with NegMAS Agents
 
 NegoLog agents can negotiate with native NegMAS agents:

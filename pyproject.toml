@@ -40,6 +40,7 @@ dev = [
     "mkdocstrings-python>=2.0.1",
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    "pytest-timeout>=2.0.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
@@ -61,3 +62,6 @@ per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equi
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+[tool.uv.sources]
+negmas = { path = "../negmas", editable = true }

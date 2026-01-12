@@ -88,3 +88,7 @@ __all__ = [
 ]
 
 __version__ = "0.1.0"
+
+# Auto-register agents in the negmas registry (if available)
+# This import triggers the registration via registry_init._register_negolog_agents()
+from negmas_negolog import registry_init as _registry_init  # noqa: F401
