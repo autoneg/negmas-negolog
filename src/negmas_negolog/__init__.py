@@ -87,7 +87,9 @@ __all__ = [
     "HybridAgent",
 ]
 
-__version__ = "0.1.0"
+from importlib.metadata import version as _get_version
+
+__version__ = _get_version("negmas-negolog")
 
 # Auto-register agents in the negmas registry (if available)
 # This import triggers the registration via registry_init._register_negolog_agents()
