@@ -1,0 +1,37 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: debug-statements
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^vendor/
+      - id: trailing-whitespace
+        exclude: ^vendor/
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: check-json
+      - id: mixed-line-ending
+        exclude: ^vendor/
+      - id: check-added-large-files
+        args: ["--maxkb=2000"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.13
+    hooks:
+      - id: ruff
+        types_or: [python, pyi]
+        args: [--fix, --unsafe-fixes]
+        exclude: ^vendor/
+      - id: ruff-format
+        types_or: [python, pyi]
+        exclude: ^vendor/
+
+  - repo: local
+    hooks:
+      - id: no-uv-sources
+        name: Prevent tool.uv.sources in pyproject.toml
+        language: pygrep
+        entry: "^\\[tool\\.uv\\.sources\\]"
+        files: ^pyproject\.toml$
+        types: [toml]

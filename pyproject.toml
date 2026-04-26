@@ -1,0 +1,64 @@
+[project]
+name = "negmas-negolog"
+version = "0.2.3"
+description = "NegMAS wrappers for NegoLog negotiating agents"
+readme = "README.md"
+authors = [
+    { name = "Yasser Mohammad", email = "yasserfarouk@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "negmas>=0.15.2",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "PyYAML>=6.0",
+    # NegoLog dependencies
+    "plotly>=5.18.0",
+    "seaborn>=0.13.0",
+    "scikit-learn>=1.4.0",
+    "openpyxl>=3.1.0",
+    "numba>=0.58.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings>=1.0.0",
+    "mkdocstrings-python>=2.0.1",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-timeout>=2.0.0",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings[python]>=0.29.0",
+    "pymdown-extensions>=10.0",
+]
+
+[tool.ruff]
+exclude = ["vendor/*"]
+
+[tool.ruff.lint]
+# E402: Module level import not at top of file
+# This is intentionally violated in common.py, test_equivalence.py, and compare_behavior.py
+# because we need to modify sys.path before importing vendored NegoLog modules
+per-file-ignores = { "src/negmas_negolog/common.py" = ["E402"], "tests/test_equivalence.py" = ["E402"], "scripts/compare_behavior.py" = ["E402"] }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
