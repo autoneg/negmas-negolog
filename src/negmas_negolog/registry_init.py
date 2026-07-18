@@ -73,6 +73,7 @@ def _register_negotiator(
     cls: type,
     short_name: str,
     tags: set[str],
+    description: str | None = None,
 ) -> None:
     """Register a negotiator with backward compatibility.
 
@@ -84,6 +85,7 @@ def _register_negotiator(
         cls: The negotiator class to register.
         short_name: The short name for registration.
         tags: Set of tags for the negotiator.
+        description: Short, human-readable summary of the negotiator's strategy.
     """
     try:
         # New API: use source parameter and pass boolean features as tags
@@ -92,6 +94,7 @@ def _register_negotiator(
             short_name=short_name,
             source=_SOURCE,
             tags=tags,
+            description=description,
         )
     except TypeError:
         # Old API: no source parameter, use bilateral_only as keyword arg
@@ -120,6 +123,7 @@ def _register_negolog_agents() -> None:
     including:
     - short_name: The class name (with "NL" prefix for Genius conflicts)
     - source: "negolog" to identify the origin of these agents
+    - description: A short, human-readable summary of the agent's strategy
     - tags: Set of tags for categorization and filtering
 
     Tags used:
@@ -185,6 +189,11 @@ def _register_negolog_agents() -> None:
         BoulwareAgent,
         short_name="BoulwareAgent",
         tags=base_tags | {"time-based", "boulware"},
+        description=(
+            "Tough time-based concession: slowly (sub-linearly) lowers a Bezier "
+            "target-utility curve, holding high demands until near the deadline; "
+            "no opponent modeling."
+        ),
     )
 
     _register_negotiator(
@@ -192,6 +201,11 @@ def _register_negolog_agents() -> None:
         ConcederAgent,
         short_name="ConcederAgent",
         tags=base_tags | {"time-based", "conceder"},
+        description=(
+            "Soft time-based concession: quickly (super-linearly) lowers a Bezier "
+            "target-utility curve, prioritizing agreement over utility; "
+            "no opponent modeling."
+        ),
     )
 
     _register_negotiator(
@@ -199,6 +213,10 @@ def _register_negolog_agents() -> None:
         LinearAgent,
         short_name="LinearAgent",
         tags=base_tags | {"time-based", "linear"},
+        description=(
+            "Balanced time-based concession: lowers a Bezier target-utility curve "
+            "linearly, midway between Boulware and Conceder; no opponent modeling."
+        ),
     )
 
     # =========================================================================
@@ -210,6 +228,10 @@ def _register_negolog_agents() -> None:
         IAMhaggler,
         short_name=_get_short_name("IAMhaggler"),
         tags=base_tags | {"anac", "anac-2010", "learning", "bayesian"},
+        description=(
+            "Uses Gaussian Process regression to predict opponent behavior and "
+            "optimize the timing of its time-based concession."
+        ),
     )
 
     # =========================================================================
@@ -221,6 +243,10 @@ def _register_negolog_agents() -> None:
         HardHeaded,
         short_name=_get_short_name("HardHeaded"),
         tags=base_tags | {"anac", "anac-2011", "learning", "frequency"},
+        description=(
+            "Aggressive frequency-modeling agent that holds high demands via "
+            "monotonic concession and yields only near the deadline."
+        ),
     )
 
     _register_negotiator(
@@ -228,6 +254,10 @@ def _register_negolog_agents() -> None:
         NiceTitForTat,
         short_name=_get_short_name("NiceTitForTat"),
         tags=base_tags | {"anac", "anac-2011", "tit-for-tat"},
+        description=(
+            "Cooperative tit-for-tat in utility space, reciprocating opponent "
+            "concessions while aiming for the Nash bargaining solution."
+        ),
     )
 
     # =========================================================================
@@ -239,6 +269,11 @@ def _register_negolog_agents() -> None:
         CUHKAgent,
         short_name=_get_short_name("CUHKAgent"),
         tags=base_tags | {"anac", "anac-2012", "learning", "frequency"},
+        description=(
+            "Adaptive time-dependent conceder with frequency-based opponent "
+            "modeling that adjusts its threshold to opponent behavior and time "
+            "pressure."
+        ),
     )
 
     # =========================================================================
@@ -250,6 +285,10 @@ def _register_negolog_agents() -> None:
         Atlas3Agent,
         short_name="Atlas3Agent",
         tags=base_tags | {"anac", "anac-2015", "learning", "frequency"},
+        description=(
+            "Adaptive agent using frequency-based opponent modeling and "
+            "game-theoretic bid search driven by opponent-behavior analysis."
+        ),
     )
 
     _register_negotiator(
@@ -257,6 +296,11 @@ def _register_negolog_agents() -> None:
         ParsAgent,
         short_name=_get_short_name("ParsAgent"),
         tags=base_tags | {"anac", "anac-2015", "learning"},
+        description=(
+            "Hybrid time-dependent, random, and frequency-based bidding that "
+            "offers high-utility bids close to opponent preferences to encourage "
+            "early agreement."
+        ),
     )
 
     _register_negotiator(
@@ -264,6 +308,10 @@ def _register_negolog_agents() -> None:
         RandomDance,
         short_name=_get_short_name("RandomDance"),
         tags=base_tags | {"anac", "anac-2015", "random"},
+        description=(
+            "Opponent modeling with several weighted utility-estimation functions "
+            "chosen at random for unpredictable yet responsive bidding."
+        ),
     )
 
     _register_negotiator(
@@ -271,6 +319,11 @@ def _register_negolog_agents() -> None:
         AgentBuyog,
         short_name=_get_short_name("AgentBuyog"),
         tags=base_tags | {"anac", "anac-2015", "learning"},
+        description=(
+            "Regression-estimates the opponent's concession function and "
+            "preferences to target Kalai-point bids and set optimal acceptance "
+            "thresholds."
+        ),
     )
 
     _register_negotiator(
@@ -278,6 +331,10 @@ def _register_negolog_agents() -> None:
         Kawaii,
         short_name=_get_short_name("Kawaii"),
         tags=base_tags | {"anac", "anac-2015", "learning", "frequency"},
+        description=(
+            "Simulated-Annealing bid search with time-dependent concession and "
+            "acceptance that adapts to the number of accepting opponents."
+        ),
     )
 
     _register_negotiator(
@@ -285,6 +342,10 @@ def _register_negolog_agents() -> None:
         Caduceus2015,
         short_name="Caduceus2015",
         tags=base_tags | {"anac", "anac-2015", "learning"},
+        description=(
+            "Nash-product optimization with frequency-based opponent modeling to "
+            "find mutually beneficial outcomes."
+        ),
     )
 
     # =========================================================================
@@ -296,6 +357,10 @@ def _register_negolog_agents() -> None:
         YXAgent,
         short_name=_get_short_name("YXAgent"),
         tags=base_tags | {"anac", "anac-2016", "learning", "frequency"},
+        description=(
+            "Frequency-based opponent modeling with threshold-based bidding and "
+            "acceptance, focusing on the toughest opponent."
+        ),
     )
 
     _register_negotiator(
@@ -303,6 +368,10 @@ def _register_negolog_agents() -> None:
         ParsCatAgent,
         short_name="ParsCatAgent",
         tags=base_tags | {"anac", "anac-2016", "learning"},
+        description=(
+            "Time-dependent bidding with a piecewise, phase-dependent acceptance "
+            "function informed by opponent-bid history."
+        ),
     )
 
     _register_negotiator(
@@ -310,6 +379,10 @@ def _register_negolog_agents() -> None:
         Caduceus,
         short_name=_get_short_name("Caduceus"),
         tags=base_tags | {"anac", "anac-2016", "learning"},
+        description=(
+            "Algorithm-portfolio / mixture-of-experts that combines five expert "
+            "agents to make collective bidding decisions."
+        ),
     )
 
     # =========================================================================
@@ -321,6 +394,10 @@ def _register_negolog_agents() -> None:
         PonPokoAgent,
         short_name=_get_short_name("PonPokoAgent"),
         tags=base_tags | {"anac", "anac-2017", "learning", "frequency"},
+        description=(
+            "Randomized multi-strategy agent that picks one of five distinct "
+            "bidding patterns per session to stay unpredictable."
+        ),
     )
 
     _register_negotiator(
@@ -328,6 +405,11 @@ def _register_negolog_agents() -> None:
         AgentKN,
         short_name=_get_short_name("AgentKN"),
         tags=base_tags | {"anac", "anac-2017", "learning"},
+        description=(
+            "Simulated-Annealing bid search with opponent modeling of the "
+            "opponent's likely maximum offer, balancing self-utility and value "
+            "frequency."
+        ),
     )
 
     _register_negotiator(
@@ -335,6 +417,10 @@ def _register_negolog_agents() -> None:
         Rubick,
         short_name=_get_short_name("Rubick"),
         tags=base_tags | {"anac", "anac-2017", "learning"},
+        description=(
+            "Frequency-modeling time-based conceder using randomized "
+            "Boulware-style concession floored at the best utility ever received."
+        ),
     )
 
     # =========================================================================
@@ -346,6 +432,10 @@ def _register_negolog_agents() -> None:
         AgentGG,
         short_name=_get_short_name("AgentGG"),
         tags=base_tags | {"anac", "anac-2019", "learning", "frequency"},
+        description=(
+            "Frequentist importance maps estimate self and opponent preferences, "
+            "driving time-based concession over importance thresholds."
+        ),
     )
 
     _register_negotiator(
@@ -353,6 +443,10 @@ def _register_negolog_agents() -> None:
         SAGAAgent,
         short_name="SAGAAgent",
         tags=base_tags | {"anac", "anac-2019", "learning"},
+        description=(
+            "Genetic-Algorithm preference estimation (Spearman-correlation "
+            "fitness) combined with time-based bidding and acceptance."
+        ),
     )
 
     # =========================================================================
@@ -364,6 +458,10 @@ def _register_negolog_agents() -> None:
         LuckyAgent2022,
         short_name="LuckyAgent2022",
         tags=base_tags | {"anac", "anac-2022", "learning"},
+        description=(
+            "BOA-component agent with a multi-armed-bandit-inspired Stop-Learning "
+            "Mechanism to prevent opponent-model overfitting."
+        ),
     )
 
     # =========================================================================
@@ -375,6 +473,10 @@ def _register_negolog_agents() -> None:
         MICROAgent,
         short_name="MICROAgent",
         tags=base_tags | {"micro", "learning"},
+        description=(
+            "MiCRO benchmark: monotonic concession with reciprocal offers, "
+            "conceding only when the opponent proposes new unique bids."
+        ),
     )
 
     _register_negotiator(
@@ -382,6 +484,10 @@ def _register_negolog_agents() -> None:
         AhBuNeAgent,
         short_name="AhBuNeAgent",
         tags=base_tags | {"learning"},
+        description=(
+            "Similarity maps and linear ordering estimate preferences, balancing "
+            "preference elicitation against utility maximization."
+        ),
     )
 
     _register_negotiator(
@@ -389,6 +495,10 @@ def _register_negolog_agents() -> None:
         HybridAgent,
         short_name="HybridAgent",
         tags=base_tags | {"hybrid", "learning"},
+        description=(
+            "Blends time-based Bezier concession with behavior-based mirroring of "
+            "opponent moves using time-varying weights."
+        ),
     )
 
 
