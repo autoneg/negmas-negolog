@@ -323,14 +323,14 @@ negmas-negolog/
 ├── src/negmas_negolog/
 │   ├── __init__.py      # Package exports
 │   ├── common.py        # Base classes (NegologNegotiatorWrapper, NegologPreferenceAdapter)
-│   └── agents/          # Individual agent wrapper modules
-│       ├── atlas3.py
-│       ├── boulware.py
-│       ├── conceder.py
-│       └── ...          # 25 agent wrappers total
-├── vendor/NegoLog/      # Vendored NegoLog library
-│   ├── agents/          # NegoLog agent implementations
-│   └── nenv/            # NegoLog environment
+│   ├── agents/          # Individual agent wrapper modules
+│   │   ├── atlas3.py
+│   │   ├── boulware.py
+│   │   ├── conceder.py
+│   │   └── ...          # 25 agent wrappers total
+│   └── _vendor/NegoLog/ # Vendored NegoLog library (bundled so it ships in the wheel)
+│       ├── agents/      # NegoLog agent implementations
+│       └── nenv/        # NegoLog environment
 ├── docs/                # Documentation source
 ├── scripts/
 │   └── compare_behavior.py  # Behavior comparison script

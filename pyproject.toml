@@ -50,7 +50,7 @@ docs = [
 ]
 
 [tool.ruff]
-exclude = ["vendor/*"]
+exclude = ["src/negmas_negolog/_vendor/*"]
 
 [tool.ruff.lint]
 # E402: Module level import not at top of file

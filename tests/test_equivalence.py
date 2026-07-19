@@ -15,8 +15,10 @@ from dataclasses import dataclass
 
 import pytest
 
-# Add vendored NegoLog to path
-NEGOLOG_PATH = Path(__file__).parent.parent / "vendor" / "NegoLog"
+# Add vendored NegoLog to path (bundled inside the package so it ships in the wheel)
+NEGOLOG_PATH = (
+    Path(__file__).parent.parent / "src" / "negmas_negolog" / "_vendor" / "NegoLog"
+)
 if str(NEGOLOG_PATH) not in sys.path:
     sys.path.insert(0, str(NEGOLOG_PATH))
 

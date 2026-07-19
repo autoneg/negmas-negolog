@@ -46,7 +46,7 @@ uv run pytest tests/ --cov=negmas_negolog
 
 To wrap a new NegoLog agent:
 
-1. Import the agent class from `vendor/NegoLog/agents/`
+1. Import the agent class from `src/negmas_negolog/_vendor/NegoLog/agents/`
 2. Create a wrapper class in `src/negmas_negolog/wrapper.py`
 3. Add to `__all__` in both `wrapper.py` and `__init__.py`
 4. Add tests in `tests/test_wrapper.py`

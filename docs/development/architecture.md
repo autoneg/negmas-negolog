@@ -21,7 +21,7 @@ src/negmas_negolog/
     ├── NegologNegotiatorWrapper  # Base wrapper class
     └── 25 concrete wrappers      # One per NegoLog agent
 
-vendor/NegoLog/          # Vendored NegoLog library
+src/negmas_negolog/_vendor/NegoLog/   # Vendored NegoLog library (bundled in the wheel)
 ├── agents/              # NegoLog agent implementations
 │   ├── boulware/
 │   ├── conceder/

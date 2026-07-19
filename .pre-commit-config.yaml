@@ -5,14 +5,14 @@ repos:
       - id: debug-statements
       - id: check-yaml
       - id: end-of-file-fixer
-        exclude: ^vendor/
+        exclude: ^src/negmas_negolog/_vendor/
       - id: trailing-whitespace
-        exclude: ^vendor/
+        exclude: ^src/negmas_negolog/_vendor/
       - id: fix-byte-order-marker
       - id: check-case-conflict
       - id: check-json
       - id: mixed-line-ending
-        exclude: ^vendor/
+        exclude: ^src/negmas_negolog/_vendor/
       - id: check-added-large-files
         args: ["--maxkb=2000"]
 
@@ -22,10 +22,10 @@ repos:
       - id: ruff
         types_or: [python, pyi]
         args: [--fix, --unsafe-fixes]
-        exclude: ^vendor/
+        exclude: ^src/negmas_negolog/_vendor/
       - id: ruff-format
         types_or: [python, pyi]
-        exclude: ^vendor/
+        exclude: ^src/negmas_negolog/_vendor/
 
   - repo: local
     hooks:
