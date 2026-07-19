@@ -3,6 +3,11 @@ name = "negmas-negolog"
 version = "0.2.4"
 description = "NegMAS wrappers for NegoLog negotiating agents"
 readme = "README.md"
+# This project is AGPL-3.0. It bundles and redistributes NegoLog, which is
+# GPL-3.0; that combination is expressly permitted by GPLv3/AGPLv3 section 13.
+# Both license texts are shipped in the distribution (see license-files).
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "src/negmas_negolog/_vendor/NegoLog/LICENSE"]
 authors = [
     { name = "Yasser Mohammad", email = "yasserfarouk@gmail.com" }
 ]

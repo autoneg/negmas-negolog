@@ -354,7 +354,14 @@ negmas-negolog/
 
 ## License
 
-AGPL-3.0 License - see [LICENSE](LICENSE) for details.
+This project is licensed under **AGPL-3.0** — see [LICENSE](LICENSE) for details.
+
+It bundles and redistributes **[NegoLog](https://github.com/aniltrue/NegoLog)**, which is
+licensed under **GPL-3.0** (see [NegoLog Attribution](#negolog-attribution)). Combining a
+GPL-3.0 work with an AGPL-3.0 work is expressly permitted by section 13 of both licenses:
+the NegoLog portion remains under GPL-3.0 while the distribution as a whole is governed by
+AGPL-3.0. NegoLog's license text ships with the package at
+`src/negmas_negolog/_vendor/NegoLog/LICENSE`.
 
 ## Acknowledgments
 
