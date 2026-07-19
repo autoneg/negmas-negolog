@@ -45,6 +45,21 @@ rm -f "$NEGOLOG_DIR/app.py"
 rm -f "$NEGOLOG_DIR/run.py"
 rm -f "$NEGOLOG_DIR/tournament_example.yaml"
 
+# Re-sync the in-package bundle from the freshly vendored upstream.
+#
+# Only the `nenv` and `agents` subtrees of NegoLog are needed at runtime, and
+# they live OUTSIDE `src/` here (vendor/ is just the upstream mirror), so they
+# would NOT be included in the built wheel. We therefore keep a copy inside the
+# package at `src/negmas_negolog/_vendor/NegoLog/{nenv,agents}` which DOES ship
+# in the wheel (see common.py NEGOLOG_PATH). Re-syncing it here ensures the
+# bundled copy never silently drifts from upstream after an update.
+BUNDLE_DIR="$PROJECT_ROOT/src/negmas_negolog/_vendor/NegoLog"
+echo "Re-syncing in-package bundle at $BUNDLE_DIR ..."
+rm -rf "$BUNDLE_DIR"
+mkdir -p "$BUNDLE_DIR"
+cp -R "$NEGOLOG_DIR/nenv" "$BUNDLE_DIR/nenv"
+cp -R "$NEGOLOG_DIR/agents" "$BUNDLE_DIR/agents"
+
 # Get the commit hash for reference
 echo
 echo "NegoLog vendored successfully!"

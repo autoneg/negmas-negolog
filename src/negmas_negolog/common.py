@@ -13,8 +13,11 @@ from abc import ABC
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Type
 
-# Add vendored NegoLog to the path BEFORE any imports that depend on it
-NEGOLOG_PATH = Path(__file__).parent.parent.parent / "vendor" / "NegoLog"
+# Add vendored NegoLog to the path BEFORE any imports that depend on it.
+# The NegoLog framework (top-level ``nenv`` and ``agents`` packages) is bundled
+# INSIDE this package at ``_vendor/NegoLog`` so it ships in the built wheel and
+# resolves identically in both editable and installed (PyPI) modes.
+NEGOLOG_PATH = Path(__file__).parent / "_vendor" / "NegoLog"
 if str(NEGOLOG_PATH) not in sys.path:
     sys.path.insert(0, str(NEGOLOG_PATH))
 
