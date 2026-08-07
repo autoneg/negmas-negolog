@@ -100,6 +100,7 @@ class NegologPreferenceAdapter(Preference):
         issues: List[Issue],
         issue_names: List[str],
         reservation_value: float = 0.0,
+        native_values: dict[str, list] | None = None,
     ):
         """
         Initialize the preference adapter.
@@ -109,6 +110,12 @@ class NegologPreferenceAdapter(Preference):
             issues: List of NegoLog Issue objects
             issue_names: List of issue names (for mapping)
             reservation_value: Reservation value (utility if negotiation fails)
+            native_values: Per-issue-name list of the *NegMAS* values, in the same
+                order as the corresponding NegoLog issue's (stringified) values.
+                NegoLog issues can only hold strings, so without this the adapter
+                would hand strings to a NegMAS value function or use them as
+                outcome elements -- which silently breaks every issue whose values
+                are not strings (any integer/contiguous issue, for instance).
         """
         # Initialize parent without loading from JSON
         super().__init__(profile_json_path=None, generate_bids=False)
@@ -122,6 +129,17 @@ class NegologPreferenceAdapter(Preference):
         self._issues = issues
         self._reservation_value = reservation_value
         self._issue_names = issue_names
+        # str -> native and native -> str, per issue name. Falls back to identity
+        # when the caller did not supply the NegMAS values (the values are then
+        # already strings, which is the only case the old code handled).
+        self._to_native: dict[str, dict] = {}
+        self._to_negolog: dict[str, dict] = {}
+        for issue in issues:
+            natives = (native_values or {}).get(issue.name, list(issue.values))
+            self._to_native[issue.name] = dict(zip(issue.values, natives))
+            self._to_negolog[issue.name] = {
+                n: v for v, n in zip(issue.values, natives)
+            }
 
         # Build issue weights from the NegMAS ufun if it's a LinearAdditive type
         # This is needed for opponent models that use these weights
@@ -135,17 +153,22 @@ class NegologPreferenceAdapter(Preference):
             for i, issue in enumerate(issues):
                 self._issue_weights[issue] = float(ufun_weights[i])
                 self._value_weights[issue] = {}
-                # ufun_values[i] is a TableFun with a 'mapping' attribute
+                # A TableFun exposes its `mapping`; anything else (AffineFun,
+                # LambdaFun, ...) has to be called. Either way it is keyed by /
+                # called with the *NegMAS* value, never the NegoLog string.
                 val_fun = ufun_values[i]
-                if hasattr(val_fun, "mapping"):
-                    mapping = val_fun.mapping
-                elif callable(val_fun):
-                    # Try to call it for each value
-                    mapping = {v: val_fun(v) for v in issue.values}
-                else:
-                    mapping = {}
+                table = getattr(val_fun, "mapping", None)
                 for value in issue.values:
-                    val_weight = mapping.get(value, 0.5)
+                    native = self._to_native[issue.name].get(value, value)
+                    if table is not None:
+                        val_weight = table.get(native, table.get(value, 0.5))
+                    elif callable(val_fun):
+                        try:
+                            val_weight = val_fun(native)
+                        except Exception:
+                            val_weight = 0.5
+                    else:
+                        val_weight = 0.5
                     self._value_weights[issue][value] = float(val_weight)
         else:
             # Fall back to equal weights
@@ -170,13 +193,20 @@ class NegologPreferenceAdapter(Preference):
         return float(self._ufun(outcome))
 
     def _bid_to_outcome(self, bid: Bid) -> Outcome:
-        """Convert a NegoLog Bid to a NegMAS Outcome tuple."""
+        """Convert a NegoLog Bid to a NegMAS Outcome tuple.
+
+        NegoLog values are always strings, so they are mapped back to the NegMAS
+        values here. Skipping that step yields an outcome like ``("1", "5")`` for
+        an integer-valued domain, which is not a member of the outcome space at
+        all -- the utility function and the mechanism both reject it.
+        """
         values = []
         for issue_name in self._issue_names:
             # Find the issue by name
             for issue in self._issues:
                 if issue.name == issue_name:
-                    values.append(bid[issue])
+                    value = bid[issue]
+                    values.append(self._to_native[issue_name].get(value, value))
                     break
         return tuple(values)
 
@@ -184,7 +214,8 @@ class NegologPreferenceAdapter(Preference):
         """Convert a NegMAS Outcome tuple to a NegoLog Bid."""
         content = {}
         for i, issue in enumerate(self._issues):
-            content[issue] = outcome[i]
+            value = outcome[i]
+            content[issue] = self._to_negolog[issue.name].get(value, value)
         bid = Bid(content)
         bid.utility = self.get_utility(bid)
         return bid
@@ -317,12 +348,15 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
 
         self._issues = []
         self._issue_names = []
+        native_values: dict[str, list] = {}
 
         for i, negmas_issue in enumerate(negmas_issues):
             issue_name = getattr(negmas_issue, "name", f"issue_{i}")
             self._issue_names.append(issue_name)
 
-            # Get all possible values for this issue
+            # Get all possible values for this issue. `.all` enumerates a discrete
+            # issue; `.values` is only a (min, max) pair for a contiguous one, so
+            # it must not be preferred over `.all`.
             if hasattr(negmas_issue, "all"):
                 values = list(negmas_issue.all)
             elif hasattr(negmas_issue, "values"):
@@ -331,7 +365,9 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
                 # Try to enumerate
                 values = list(negmas_issue)
 
-            # Convert values to strings if needed
+            # NegoLog issues hold strings, so keep the NegMAS values alongside
+            # them to translate back (see NegologPreferenceAdapter).
+            native_values[issue_name] = values
             values = [str(v) if not isinstance(v, str) else v for v in values]
 
             negolog_issue = Issue(issue_name, values)
@@ -347,6 +383,7 @@ class NegologNegotiatorWrapper(SAONegotiator, ABC):
             issues=self._issues,
             issue_names=self._issue_names,
             reservation_value=reservation_value,
+            native_values=native_values,
         )
 
         # Create the NegoLog agent

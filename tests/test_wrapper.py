@@ -406,3 +406,64 @@ class TestNegoLogVsNegMAS:
         assert state is not None
         assert state.started
         assert state.ended
+
+
+class TestNonStringIssueValues:
+    """Domains whose issue values are not strings.
+
+    NegoLog issues can only hold strings, so the wrapper stringifies every value.
+    Without a translation back to the NegMAS values, two things break silently:
+    a contiguous (integer-range) issue reports `(min, max)` rather than its values,
+    and every proposed outcome comes out as a tuple of strings that is not a member
+    of the outcome space.
+    """
+
+    @pytest.fixture
+    def int_issues(self):
+        return [
+            make_issue((1, 7), name="price"),
+            make_issue((1, 10), name="quantity"),
+        ]
+
+    @pytest.fixture
+    def int_ufuns(self, int_issues):
+        from negmas.preferences.value_fun import AffineFun
+
+        os_ = make_os(int_issues)
+        buyer = LinearAdditiveUtilityFunction(
+            values=[AffineFun(-0.1, bias=1.0), AffineFun(0.05)],
+            weights=[0.6, 0.4],
+            outcome_space=os_,
+        )
+        seller = LinearAdditiveUtilityFunction(
+            values=[AffineFun(0.1), AffineFun(-0.05, bias=1.0)],
+            weights=[0.5, 0.5],
+            outcome_space=os_,
+        )
+        return buyer, seller
+
+    @pytest.mark.parametrize("agent_class", [BoulwareAgent, NiceTitForTat])
+    def test_runs_on_contiguous_issues(self, agent_class, int_issues, int_ufuns):
+        buyer_ufun, seller_ufun = int_ufuns
+        mechanism = SAOMechanism(issues=int_issues, n_steps=100)
+        mechanism.add(agent_class(name="buyer"), preferences=buyer_ufun)
+        mechanism.add(ConcederAgent(name="seller"), preferences=seller_ufun)
+
+        state = mechanism.run()
+
+        assert state.ended and not state.has_error
+
+    def test_offers_are_valid_outcomes(self, int_issues, int_ufuns):
+        """Every offer must be a member of the outcome space, not a string tuple."""
+        buyer_ufun, seller_ufun = int_ufuns
+        os_ = make_os(int_issues)
+        mechanism = SAOMechanism(issues=int_issues, n_steps=30)
+        mechanism.add(BoulwareAgent(name="buyer"), preferences=buyer_ufun)
+        mechanism.add(ConcederAgent(name="seller"), preferences=seller_ufun)
+
+        mechanism.run()
+
+        offers = [_.offer for _ in mechanism.full_trace if _.offer is not None]
+        assert offers
+        for offer in offers:
+            assert os_.is_valid(offer), f"{offer} is not a valid outcome"
