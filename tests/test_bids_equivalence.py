@@ -829,3 +829,76 @@ def test_negotiations_run_on_every_domain_shape(domain_name, seeded_random):
     for step in first:
         offer = step[1]
         assert offer is None or offer in outcomes, "offered outside the outcome space"
+
+
+# --------------------------------------------------------------------------- #
+# Opponent-model regressions (Caduceus / Caduceus2015)
+# --------------------------------------------------------------------------- #
+
+
+def _two_issue_scenario(colour_weights: dict) -> tuple:
+    issues = [make_issue(["p", "q"], "price"), make_issue(["x", "y"], "colour")]
+    space = make_os(issues)
+    mine = LinearAdditiveUtilityFunction(
+        values=[TableFun({"p": 1.0, "q": 0.0}), TableFun(colour_weights)],
+        weights=[0.5, 0.5], outcome_space=space, reserved_value=0.0,
+    )
+    theirs = LinearAdditiveUtilityFunction(
+        values=[TableFun({"p": 0.0, "q": 1.0}), TableFun({"x": 0.5, "y": 0.5})],
+        weights=[0.5, 0.5], outcome_space=space, reserved_value=0.0,
+    )
+    return space, mine, theirs
+
+
+@pytest.mark.parametrize("agent", ["Caduceus", "Caduceus2015"])
+def test_an_issue_the_agent_is_indifferent_about_does_not_crash(agent, seeded_random):
+    """Every value of an issue being equally acceptable used to raise ZeroDivisionError.
+
+    ``EstimatedPreference`` seeds the opponent model with the *inverse* of the
+    reference weights, so an issue whose values all weigh 1.0 inverts to all
+    zeros, and ``SaneUtilitySpace.normalize`` divided by that zero sum.
+    """
+    space, mine, theirs = _two_issue_scenario({"x": 1.0, "y": 1.0})
+    mechanism = SAOMechanism(outcome_space=space, n_steps=20)
+    mechanism.add(getattr(nn, agent)(ufun=mine, name="A"))
+    mechanism.add(nn.BoulwareAgent(ufun=theirs, name="B"))
+    mechanism.run()
+    assert mechanism.agreement is None or mechanism.agreement in set(
+        space.enumerate()  # type: ignore[attr-defined]
+    )
+
+
+@pytest.mark.parametrize("agent", ["Caduceus", "Caduceus2015"])
+def test_a_single_issue_domain_does_not_crash(agent, seeded_random):
+    """The sibling case: one issue means weight 1.0, which inverts to a zero sum."""
+    issues = [make_issue(["p", "q", "r"], "price")]
+    space = make_os(issues)
+    mine = LinearAdditiveUtilityFunction(
+        values=[TableFun({"p": 1.0, "q": 0.5, "r": 0.0})],
+        weights=[1.0], outcome_space=space, reserved_value=0.0,
+    )
+    theirs = LinearAdditiveUtilityFunction(
+        values=[TableFun({"p": 0.0, "q": 0.5, "r": 1.0})],
+        weights=[1.0], outcome_space=space, reserved_value=0.0,
+    )
+    mechanism = SAOMechanism(outcome_space=space, n_steps=20)
+    mechanism.add(getattr(nn, agent)(ufun=mine, name="A"))
+    mechanism.add(nn.BoulwareAgent(ufun=theirs, name="B"))
+    mechanism.run()
+    assert mechanism.agreement is None or mechanism.agreement in set(
+        space.enumerate()  # type: ignore[attr-defined]
+    )
+
+
+def test_normalize_falls_back_to_a_uniform_distribution():
+    """The guarded degenerate case must still leave the weights summing to 1."""
+    from agents.Caduceus2015.SaneUtilitySpace import SaneUtilitySpace
+
+    domain = DOMAINS_BY_NAME["larger"]
+    space = SaneUtilitySpace(domain.adapter(domain.ufun()))
+    space.init_zero()
+    space.normalize()
+
+    assert sum(space.issue_weights.values()) == pytest.approx(1.0)
+    for issue in space.issue_weights:
+        assert sum(space.value_weights[issue].values()) == pytest.approx(1.0)
