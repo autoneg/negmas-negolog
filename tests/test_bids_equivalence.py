@@ -902,3 +902,21 @@ def test_normalize_falls_back_to_a_uniform_distribution():
     assert sum(space.issue_weights.values()) == pytest.approx(1.0)
     for issue in space.issue_weights:
         assert sum(space.value_weights[issue].values()) == pytest.approx(1.0)
+
+
+def test_estimated_preference_keeps_the_reservation_value():
+    """Opponent models read ``reservation_value``; ``get_random_bid`` needs it.
+
+    ``Preference.__init__`` returns early for a ``None`` path without setting it,
+    so an ``EstimatedPreference`` built over an adapter used to raise
+    ``AttributeError`` on both.
+    """
+    from nenv.OpponentModel.EstimatedPreference import EstimatedPreference
+
+    domain = DOMAINS_BY_NAME["larger"]
+    adapter = domain.adapter(domain.ufun())
+    adapter._reservation_value = 0.42
+
+    estimated = EstimatedPreference(adapter)
+    assert estimated.reservation_value == 0.42
+    assert estimated.get_random_bid() is not None

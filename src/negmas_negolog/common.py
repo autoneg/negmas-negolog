@@ -25,53 +25,6 @@ if str(NEGOLOG_PATH) not in sys.path:
 # Import NegoLog types (must be after path is added)
 from nenv import Bid, Issue, Preference, Accept  # noqa: E402
 from nenv.Agent import AbstractAgent  # noqa: E402
-from nenv.OpponentModel.EstimatedPreference import EstimatedPreference  # noqa: E402
-
-# Monkey-patch EstimatedPreference to handle preferences without JSON files
-_original_estimated_preference_init = EstimatedPreference.__init__
-
-
-def _patched_estimated_preference_init(self, reference: Preference):
-    """
-    Patched __init__ for EstimatedPreference that handles preferences
-    without a profile_json_path (i.e., programmatically created preferences).
-    """
-    # Get profile_json_path, handling None case
-    profile_json_path = reference.profile_json_path
-
-    # If profile_json_path is None or empty, we need to manually copy
-    # the domain structure from the reference
-    if not profile_json_path:
-        # Initialize with None to skip file loading
-        Preference.__init__(self, profile_json_path=None, generate_bids=False)
-
-        # Copy issues from reference
-        self._issues = reference.issues.copy() if hasattr(reference, "_issues") else []
-
-        # Copy and invert weights from reference
-        ref_issue_weights = reference.issue_weights
-        ref_value_weights = reference.value_weights
-
-        self._issue_weights = {}
-        self._value_weights = {}
-
-        for issue in self._issues:
-            # Invert issue weight
-            self._issue_weights[issue] = 1.0 - ref_issue_weights.get(issue, 0.5)
-
-            # Invert value weights
-            self._value_weights[issue] = {}
-            ref_vals = ref_value_weights.get(issue, {})
-            for value in issue.values:
-                self._value_weights[issue][value] = 1.0 - ref_vals.get(value, 0.5)
-
-        self.normalize()
-    else:
-        # Use original implementation for JSON-based preferences
-        _original_estimated_preference_init(self, reference)
-
-
-EstimatedPreference.__init__ = _patched_estimated_preference_init
 
 from negmas.outcomes import Outcome  # noqa: E402
 from negmas.preferences import BaseUtilityFunction  # noqa: E402

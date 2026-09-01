@@ -17,6 +17,10 @@ class EstimatedPreference(Preference):
         # by copying data directly from the reference
         if reference.profile_json_path is None:
             super(EstimatedPreference, self).__init__(None, generate_bids=False)
+            # LOCAL PATCH (negmas-negolog): Preference.__init__ stores "" for a
+            # None path. Keep it None so anything built FROM this object takes
+            # the no-JSON branch too, instead of trying to open("").
+            self.profile_json_path = None
             # Copy issues and weights from reference
             self._issues = reference.issues  # issues property returns a copy
             self._issue_weights = {}
