@@ -94,3 +94,9 @@ __version__ = _get_version("negmas-negolog")
 # Auto-register agents in the negmas registry (if available)
 # This import triggers the registration via registry_init._register_negolog_agents()
 from negmas_negolog import registry_init as _registry_init  # noqa: F401
+
+# Attach the vendored agents' private RNGs to NegMAS's global seed.
+# No-op unless NEGMAS_RAND_SEED asks for a seed.
+from negmas_negolog import _seeding as _seeding
+
+_seeding.install()
