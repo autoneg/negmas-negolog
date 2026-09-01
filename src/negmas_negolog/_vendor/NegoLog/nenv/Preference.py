@@ -240,7 +240,32 @@ class Preference:
 
             :return: Copy of Preference object
         """
-        return Preference(self.profile_json_path)
+        # LOCAL PATCH (negmas-negolog): copy the current in-memory state instead of
+        # rebuilding from the profile path. Rebuilding was wrong three ways:
+        #   * a path-less profile (adapters, opponent models) produced an *empty*
+        #     Preference -- no issues, no weights, and no _reservation_value, so
+        #     the copy raised AttributeError on first use;
+        #   * once such a profile stored "" it raised FileNotFoundError instead;
+        #   * a JSON-backed profile silently discarded every change made since
+        #     loading, even though these objects are explicitly mutable
+        #     (EstimatedPreference and EditablePreference exist to be mutated).
+        # Still returns a base Preference: the subclasses take incompatible
+        # constructor arguments, which is why this rebuilt from a path at all.
+        other = Preference(None, generate_bids=False)
+
+        other.profile_json_path = self.profile_json_path
+        other._issues = self._issues.copy()
+        other._issue_weights = self._issue_weights.copy()
+        other._value_weights = {
+            issue: value_weights.copy()
+            for issue, value_weights in self._value_weights.items()
+        }
+        other._reservation_value = getattr(self, "_reservation_value", 0.)
+
+        # _bids is deliberately left empty so the copy generates its own lazily.
+        # Sharing the list would alias Bid objects, which agents mutate in place.
+
+        return other
 
     def copy(self):
         """

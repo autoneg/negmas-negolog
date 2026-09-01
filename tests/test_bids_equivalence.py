@@ -920,3 +920,55 @@ def test_estimated_preference_keeps_the_reservation_value():
     estimated = EstimatedPreference(adapter)
     assert estimated.reservation_value == 0.42
     assert estimated.get_random_bid() is not None
+
+
+def test_copying_a_preference_preserves_its_contents():
+    """``Preference.copy()`` used to rebuild from the profile path.
+
+    For a path-less profile -- every profile in this wrapper -- that produced an
+    empty Preference with no issues, no weights and no reservation value, so the
+    copy raised ``AttributeError`` on first use.
+    """
+    domain = DOMAINS_BY_NAME["larger"]
+    original = domain.adapter(domain.ufun())
+    original._reservation_value = 0.42
+
+    duplicate = original.copy()
+
+    assert [i.name for i in duplicate.issues] == [i.name for i in original.issues]
+    assert duplicate.reservation_value == 0.42
+    assert duplicate.issue_weights == original.issue_weights
+    assert duplicate.value_weights == original.value_weights
+    assert len(duplicate.bids) == domain.cardinality
+
+
+def test_a_copied_preference_is_independent_of_the_original():
+    """Preference objects are explicitly mutable, so a copy must not alias one."""
+    domain = DOMAINS_BY_NAME["larger"]
+    original = domain.adapter(domain.ufun())
+    original._reservation_value = 0.0
+    duplicate = original.copy()
+
+    issue = duplicate.issues[0]
+    value = issue.values[0]
+    duplicate._issue_weights[issue] = 0.99
+    duplicate._value_weights[issue][value] = 0.99
+
+    assert original.issue_weights[issue] != 0.99, "issue weights are aliased"
+    assert original.value_weights[issue][value] != 0.99, "value weights are aliased"
+    assert all(a is not b for a, b in zip(original.bids, duplicate.bids)), (
+        "Bid objects are shared with the copy"
+    )
+
+
+def test_copying_keeps_changes_made_since_loading():
+    """Rebuilding from the path discarded every mutation; copying state keeps them."""
+    from nenv.OpponentModel.EstimatedPreference import EstimatedPreference
+
+    domain = DOMAINS_BY_NAME["larger"]
+    estimated = EstimatedPreference(domain.adapter(domain.ufun()))
+    issue = estimated.issues[0]
+    value = issue.values[0]
+    estimated.set_value_weight(issue, value, 0.123)
+
+    assert estimated.copy().value_weights[issue][value] == 0.123
