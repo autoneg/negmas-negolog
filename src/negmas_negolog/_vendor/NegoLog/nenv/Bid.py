@@ -15,11 +15,24 @@ class IssueIterator:
         self.content = content
         self.index = 0
 
+        # The issue order, taken once. This used to be rebuilt -- twice -- on every
+        # step of every iteration, which made `for issue, value in bid` quadratic in
+        # the number of issues and put `IssueIterator.__next__` at the top of nearly
+        # every agent profile (19.6M calls, 17.1s of a 46.7s NiceTitForTat
+        # negotiation). A dict's key order does not change unless the dict is written
+        # to, so a list taken here yields exactly the keys, in exactly the order, the
+        # per-step rebuild produced. Values are still read from `content` as each pair
+        # is handed out, so assigning to an issue that is already in the bid while
+        # iterating over it behaves as it did before.
+        self.keys = list(content.keys())
+
     def __next__(self):
-        if self.index < len(self.content):
+        if self.index < len(self.keys):
             self.index += 1
 
-            return list(self.content.keys())[self.index - 1], self.content[list(self.content.keys())[self.index - 1]]
+            issue = self.keys[self.index - 1]
+
+            return issue, self.content[issue]
 
         raise StopIteration
 
