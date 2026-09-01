@@ -22,6 +22,8 @@ class SimilarityMap:
     rnd: random.Random                                  # Random object
     issueList: List[str]                                # List of issues
     sortedIssueImpMap: Dict[str, float]                 # Sorted issue importance
+    valueIndex: Dict[str, Dict[str, IssueValueUnit]]    # value -> unit, so lookups are not scans
+    totalKnownValues: int                               # Number of (issue, value) pairs the maps can hold
 
     def __init__(self, pref: nenv.Preference):
         """
@@ -51,43 +53,70 @@ class SimilarityMap:
         # Initiate lists
         self.renewLists()
 
-        # Get estimated bids
-        sortedBids = self.estimatedProfile.getBids()
+        # Get estimated bids. `getBids` hands back a copy of the ranking, which on a
+        # domain the size of Travel is a 188,160-element list copied once per round for
+        # no reason: nothing below writes to it.
+        sortedBids = self.estimatedProfile.bids
         firstStartIndex = (len(sortedBids) - 1) - numFirstBids
 
         # Start index must be >= 0
         if firstStartIndex < 0:
             firstStartIndex = 0
 
+        # Pair each issue with its value index and its target set once, so that the bid
+        # loop below costs one dictionary lookup per issue instead of a scan of that
+        # issue's value list. Keyed by issue name, which is what an Issue hashes and
+        # compares as, so a bid's Issue keys still find the right entry.
+        available = {
+            name: (self.valueIndex[name], self.availableValues[name])
+            for name in self.issueValueImpMap
+        }
+
+        # A value is added at most once, so once every (issue, value) pair the map knows
+        # about has been added, no later bid can change anything: the loop has reached
+        # its fixed point and the remaining bids are pure no-ops.
+        filled = 0
+
         # Find available values
         for bidIndex in range(firstStartIndex, len(sortedBids)):
             currentBid = sortedBids[bidIndex]
 
-            for issue in currentBid.content.keys():
-                currentIssueList = self.issueValueImpMap[issue]
+            for issue, value in currentBid.content.items():
+                valueUnits, availableIssueValues = available[issue]
 
-                for currentUnit in currentIssueList:
-                    if currentUnit.valueOfIssue == currentBid[issue]:
-                        if currentBid[issue] not in self.availableValues[issue]:
-                            self.availableValues[issue].add(currentBid[issue])
-                        break
+                # The scan only recorded a value that had a unit in that issue's list,
+                # and only if it was not recorded already.
+                if value in valueUnits and value not in availableIssueValues:
+                    availableIssueValues.add(value)
+                    filled += 1
+
+            if filled == self.totalKnownValues:
+                break
 
         # Number of last bids cannot exceed the number of total bids
         if numLastBids >= len(sortedBids):
             numLastBids = len(sortedBids) - 1
 
+        forbidden = {
+            name: (self.valueIndex[name], self.forbiddenValues[name])
+            for name in self.issueValueImpMap
+        }
+
+        filled = 0
+
         # Find forbidden values
         for bidIndex in range(0, numLastBids):
             currentBid = sortedBids[bidIndex]
 
-            for issue in currentBid.content.keys():
-                currentIssueList = self.issueValueImpMap[issue]
+            for issue, value in currentBid.content.items():
+                valueUnits, forbiddenIssueValues = forbidden[issue]
 
-                for currentUnit in currentIssueList:
-                    if currentUnit.valueOfIssue == currentBid[issue]:
-                        if currentBid[issue] not in self.forbiddenValues[issue]:
-                            self.forbiddenValues[issue].add(currentBid[issue])
-                        break
+                if value in valueUnits and value not in forbiddenIssueValues:
+                    forbiddenIssueValues.add(value)
+                    filled += 1
+
+            if filled == self.totalKnownValues:
+                break
 
     def isCompatibleWithSimilarity(self, bid: nenv.Bid, minUtility: float) -> bool:
         """
@@ -272,17 +301,31 @@ class SimilarityMap:
 
     def extract_issue_value_imp(self, sortedBids: list, issueValueImpMap: dict):
         # Iterate over sorted bids to extract the Issue-Value importance dictionary
+        # The unit a value belongs to is found by lookup rather than by scanning the
+        # issue's value list; `valueIndex` resolves a repeated value to the same unit the
+        # scan's first match would have picked.
+        # Built from the argument rather than read off `self`, so it indexes whatever map
+        # the caller handed in. `setdefault` keeps the first unit for a repeated value,
+        # which is the one the scan would have stopped at.
+        index = {}
+
+        for name, units in issueValueImpMap.items():
+            issueIndex = {}
+
+            for unit in units:
+                issueIndex.setdefault(unit.valueOfIssue, unit)
+
+            index[name] = issueIndex
+
         for bidIndex in range(len(sortedBids)):
             currentBid = sortedBids[bidIndex]
             bidImportance = float(bidIndex) + 1.
 
-            for issue in currentBid.content.keys():
-                currentIssueList = issueValueImpMap[issue]
+            for issue, value in currentBid.content.items():
+                currentUnit = index[issue].get(value)
 
-                for currentUnit in currentIssueList:
-                    if currentBid[issue] == currentUnit.valueOfIssue:
-                        currentUnit.importanceList.append(bidImportance)
-                        break
+                if currentUnit is not None:
+                    currentUnit.importanceList.append(bidImportance)
 
     def update(self, estimatedProfile: SimpleLinearOrdering):
         """
@@ -348,6 +391,22 @@ class SimilarityMap:
             values = issue.values
             issueIssueValueUnit = [IssueValueUnit(value) for value in values]
             self.issueValueImpMap[issue.name] = issueIssueValueUnit
+
+        # Index the units by value. `setdefault` keeps the first unit for a repeated
+        # value, which is the one the scans this replaces would have stopped at. The
+        # unit lists are never re-ordered after they are built here, so this index stays
+        # correct until the next `renewMaps`.
+        self.valueIndex = {}
+
+        for name, units in self.issueValueImpMap.items():
+            index = {}
+
+            for unit in units:
+                index.setdefault(unit.valueOfIssue, unit)
+
+            self.valueIndex[name] = index
+
+        self.totalKnownValues = sum(len(index) for index in self.valueIndex.values())
 
     def renewLists(self):
         """
