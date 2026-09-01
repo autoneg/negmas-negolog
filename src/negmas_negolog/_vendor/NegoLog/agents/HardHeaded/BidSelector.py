@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import nenv
 
@@ -9,6 +9,7 @@ class BidSelector:
     """
     pref: nenv.Preference               # Preferences
     BidList: Dict[float, nenv.Bid]      # Utility-Bid mapping
+    sorted_keys: List[float]            # BidList's keys, ascending (see below)
 
     def __init__(self, pref: nenv.Preference):
         """
@@ -41,3 +42,9 @@ class BidSelector:
                     d -= 0.00000001
 
             self.BidList = TempBids
+
+        # BidList is complete and is never mutated afterwards, so its keys can be
+        # ordered once here instead of on every lookup. This is what lets
+        # HardHeaded.floorEntry/lowerEntry binary-search rather than re-sort the whole
+        # utility space each time they are called; see KLH.floorEntry.
+        self.sorted_keys = sorted(self.BidList.keys())

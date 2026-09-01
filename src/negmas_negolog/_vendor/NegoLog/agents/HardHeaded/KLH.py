@@ -1,5 +1,6 @@
 import math
 import random
+from bisect import bisect_left, bisect_right
 from typing import Tuple, List, Dict, Optional
 
 import nenv
@@ -81,8 +82,7 @@ class HardHeaded(nenv.AbstractAgent):
         self.maxUtil = 1.0
 
         # Highest bid for me
-        keys = list(self.BSelector.BidList.keys())
-        keys.sort()
+        keys = self.BSelector.sorted_keys
 
         highestBid = self.BSelector.BidList[keys[-1]]
 
@@ -116,21 +116,59 @@ class HardHeaded(nenv.AbstractAgent):
     def name(self) -> str:
         return "HardHeaded"
 
+    def _ordered_keys(self, d: dict) -> Optional[List[float]]:
+        """`d`'s keys in ascending order, if they are already known.
+
+        Only `BidSelector.BidList` qualifies: it is built once and never mutated, so
+        `BidSelector` sorts its keys at construction. Any other dictionary falls back
+        to the original scan, since nothing here can vouch for its contents.
+
+        The length check is a cheap guard against that assumption being broken later
+        by an edit elsewhere: a BidList that has changed size is not served from the
+        stale order, it is re-sorted like any other dictionary.
+        """
+        selector = getattr(self, "BSelector", None)
+        if selector is None or d is not getattr(selector, "BidList", None):
+            return None
+        keys = getattr(selector, "sorted_keys", None)
+        if keys is None or len(keys) != len(d):
+            return None
+        return keys
+
     def floorEntry(self, d: dict, target_key: float) -> tuple:
         """
             It returns a key-value mapping associated with the greatest key less than or equal to the given key.
         :param d: Dictionary
         :param target_key: Target key
         :return: key-value pair
+
+        Remarks:
+            This is Java's ``TreeMap.floorEntry``, which the original agent called on a
+            sorted map. Ported onto a plain ``dict`` it re-sorted every key on every
+            call, which is O(n log n) per lookup with n the size of the *whole outcome
+            space* -- and it is called inside two loops that walk down the bid list one
+            entry at a time. On a 188,160-outcome domain that came to roughly 870 full
+            sorts per received offer, ~8.7s of CPU each. Binary searching the order
+            `BidSelector` already computed restores the O(log n) the algorithm assumes.
+
+            The returned entry is identical to the scan's, including the fallback: when
+            no key satisfies the comparison the scan reaches the end of its descending
+            list and returns the *smallest* key.
         """
-        all_keys = list(d.keys())
-        all_keys.sort(reverse=True)
+        keys = self._ordered_keys(d)
+        if keys is None:
+            all_keys = list(d.keys())
+            all_keys.sort(reverse=True)
 
-        for i, key in enumerate(all_keys):
-            if key <= target_key:
-                return key, d[key]
+            for i, key in enumerate(all_keys):
+                if key <= target_key:
+                    return key, d[key]
 
-        return all_keys[-1], d[all_keys[-1]]
+            return all_keys[-1], d[all_keys[-1]]
+
+        i = bisect_right(keys, target_key) - 1
+        key = keys[i] if i >= 0 else keys[0]
+        return key, d[key]
 
     def lowerEntry(self, d: dict, target_key: float) -> tuple:
         """
@@ -138,15 +176,25 @@ class HardHeaded(nenv.AbstractAgent):
         :param d: Dictionary
         :param target_key: Target key
         :return: key-value pair
+
+        Remarks:
+            Java's ``TreeMap.lowerEntry``. See `floorEntry` for why this is a binary
+            search and for the fallback it reproduces.
         """
-        all_keys = list(d.keys())
-        all_keys.sort(reverse=True)
+        keys = self._ordered_keys(d)
+        if keys is None:
+            all_keys = list(d.keys())
+            all_keys.sort(reverse=True)
 
-        for i, key in enumerate(all_keys):
-            if key < target_key:
-                return key, d[key]
+            for i, key in enumerate(all_keys):
+                if key < target_key:
+                    return key, d[key]
 
-        return all_keys[-1], d[all_keys[-1]]
+            return all_keys[-1], d[all_keys[-1]]
+
+        i = bisect_left(keys, target_key) - 1
+        key = keys[i] if i >= 0 else keys[0]
+        return key, d[key]
 
     def receive_offer(self, bid: nenv.Bid, t: float):
         opbestvalue: float
@@ -282,8 +330,7 @@ class HardHeaded(nenv.AbstractAgent):
         if self.firstRound:
             # In the first round, offer the highest bid
             self.firstRound = not self.firstRound
-            keys = list(self.BSelector.BidList.keys())
-            keys.sort()
+            keys = self.BSelector.sorted_keys
 
             newBid = (keys[-1], self.BSelector.BidList[keys[-1]])
 
