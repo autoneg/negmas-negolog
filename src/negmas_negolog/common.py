@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from abc import ABC
+from array import array
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Type
 
@@ -134,7 +135,11 @@ class NegologPreferenceAdapter(Preference):
         # already strings, which is the only case the old code handled).
         self._to_native: dict[str, dict] = {}
         self._to_negolog: dict[str, dict] = {}
+        # name -> Issue object, first occurrence wins (same as the linear scan it
+        # replaces in ``_bid_to_outcome``, which is on the per-round hot path).
+        self._issue_by_name: dict[str, Issue] = {}
         for issue in issues:
+            self._issue_by_name.setdefault(issue.name, issue)
             natives = (native_values or {}).get(issue.name, list(issue.values))
             self._to_native[issue.name] = dict(zip(issue.values, natives))
             self._to_negolog[issue.name] = {
@@ -202,12 +207,11 @@ class NegologPreferenceAdapter(Preference):
         """
         values = []
         for issue_name in self._issue_names:
-            # Find the issue by name
-            for issue in self._issues:
-                if issue.name == issue_name:
-                    value = bid[issue]
-                    values.append(self._to_native[issue_name].get(value, value))
-                    break
+            issue = self._issue_by_name.get(issue_name)
+            if issue is None:
+                continue
+            value = bid[issue]
+            values.append(self._to_native[issue_name].get(value, value))
         return tuple(values)
 
     def _outcome_to_bid(self, outcome: Outcome) -> Bid:
@@ -220,18 +224,122 @@ class NegologPreferenceAdapter(Preference):
         bid.utility = self.get_utility(bid)
         return bid
 
-    @property
-    def bids(self) -> List[Bid]:
-        """
-        Generate all possible bids lazily.
+    def _reuse_allowed(self) -> bool:
+        """Whether one utility per outcome may be computed once and reused.
 
-        Returns:
-            Sorted list of all possible bids (descending by utility)
+        Ruled out by a non-stationary (e.g. discounted) ufun, which has no single
+        utility per outcome, and by a ufun that reports itself as modified. The
+        ``modified`` flag is newer than ``invert()``; where it is missing the ufun
+        is treated as unmodified, which is exactly what NegMAS' own inverter cache
+        on the ufun already assumes.
         """
-        if len(self._bids) > 0:
-            return self._bids
+        if getattr(self._ufun, "modified", False):
+            return False
+        is_stationary = getattr(self._ufun, "is_stationary", None)
+        if not callable(is_stationary):
+            return True
+        try:
+            return bool(is_stationary())
+        except Exception:
+            return False
 
-        # Generate all bid combinations
+    def _existing_inverse(self):
+        """A NegMAS inverse of this ufun that exists *without* building one.
+
+        Deliberately does not force construction: an inverter presorts the whole
+        outcome space itself, so building one merely to read its utilities would
+        cost more than evaluating the ufun directly. It is worth reading when
+        someone has already paid for it --
+
+        - a ufun already carrying a memoized inverter (``invert()`` caches on the
+          ufun, so another negotiator, an earlier negotiation, or the caller may
+          have built it), or
+        - a saved inverse on disk attached by ``Scenario.load``, which is the
+          expensive-to-construct case the NegMAS-side cache exists for.
+
+        Returns ``None`` on anything else, and on any version of NegMAS whose
+        ``invert()`` does not expose these internals.
+        """
+        try:
+            from negmas.preferences.inv_ufun import PresortingInverseUtilityFunction
+        except ImportError:
+            return None
+
+        cached = getattr(self._ufun, "_cached_inverse", None)
+        if cached is not None:
+            # Only the presorting family holds raw per-outcome utilities in
+            # ``outcomes``/``utils``; another inverter could expose same-named
+            # arrays meaning something else (normalized, sampled, partial).
+            return (
+                cached
+                if isinstance(cached, PresortingInverseUtilityFunction)
+                else None
+            )
+        if getattr(self._ufun, "_inverse_cache_name", None) is None:
+            return None
+        try:
+            return self._ufun.invert(PresortingInverseUtilityFunction)
+        except Exception:
+            return None
+
+    def _inverse_utilities(self) -> dict | None:
+        """``{outcome: utility}`` for the whole outcome space, via the NegMAS inverse.
+
+        A presorting inverter has already evaluated the ufun over every outcome,
+        so when one is available (see ``_existing_inverse``) its utilities are
+        reused instead of evaluating the ufun a second time.
+
+        Only the *utilities* are taken from the inverter; the bid order is still
+        produced by the enumeration in ``bids`` below, so switching the source of
+        the numbers cannot reorder equal-utility bids.
+
+        Returns ``None`` (fall back to direct evaluation) whenever no inverse is
+        at hand, it does not expose its presorted arrays, or it would not cover
+        the outcome space exactly -- e.g. a continuous issue that ``to_discrete``
+        subsamples to fewer levels than the NegoLog issue holds.
+        """
+        if not self._reuse_allowed():
+            return None
+        inverse = self._existing_inverse()
+        if inverse is None:
+            return None
+
+        outcomes = getattr(inverse, "outcomes", None)
+        utils = getattr(inverse, "utils", None)
+        if not outcomes or utils is None or len(outcomes) != len(utils):
+            return None
+
+        expected = 1
+        for issue in self._issues:
+            expected *= len(issue.values)
+        try:
+            table = {tuple(o): float(u) for o, u in zip(outcomes, utils)}
+        except TypeError:
+            # Unhashable outcome values.
+            return None
+        if len(table) != expected:
+            return None
+        return table
+
+    def _domain_signature(self) -> tuple:
+        """Identifies the domain the presorted order belongs to.
+
+        Covers the NegMAS values as well as the NegoLog strings: the strings fix
+        the enumeration the cached order indexes into, and the NegMAS values fix
+        the utilities. Two adapters over one ufun whose values merely *stringify*
+        the same (``[0, 1]`` vs ``["0", "1"]``) must not share a cache entry.
+        """
+        return tuple(
+            (
+                issue.name,
+                tuple(issue.values),
+                tuple(repr(v) for v in self._to_native[issue.name].values()),
+            )
+            for issue in self._issues
+        )
+
+    def _enumerate_bids(self) -> List[Bid]:
+        """Every bid in the domain, in NegoLog's own enumeration order (unsorted)."""
         bids = [Bid({}, -1)]
 
         for issue in self._issues:
@@ -243,11 +351,120 @@ class NegologPreferenceAdapter(Preference):
                     new_bids.append(_bid)
             bids = new_bids
 
-        # Assign utilities and sort
-        for bid in bids:
-            bid.utility = self.get_utility(bid)
+        return bids
 
-        bids = sorted(bids, reverse=True)
+    def _cached_presorted(self):
+        """The presorted order previously computed for this ufun, or ``None``.
+
+        Stashed on the ufun (not on the adapter) because the wrapper creates a
+        fresh adapter per negotiation, while the ufun typically outlives all of
+        them -- so a tournament pays the evaluate-and-sort cost once per ufun
+        instead of once per negotiation. See ``_reuse_allowed``.
+        """
+        if not self._reuse_allowed():
+            return None
+        cache = getattr(self._ufun, "_negolog_presorted", None)
+        if not isinstance(cache, dict):
+            return None
+        return cache.get(self._domain_signature())
+
+    def _store_presorted(self, order, utils) -> None:
+        """Records the presorted order against this ufun. Best-effort.
+
+        Stored as two flat arrays -- a permutation of the enumeration and the
+        utility of each enumerated bid -- rather than as outcomes or Bid objects:
+        16 bytes per outcome (512KB for a 32768-outcome domain) instead of the
+        few hundred a list of outcome tuples would cost. Worth the care because
+        this is retained for the ufun's whole lifetime, where the per-negotiation
+        bid list it replaces was garbage once the negotiation ended.
+        """
+        if not self._reuse_allowed():
+            return
+        cache = getattr(self._ufun, "_negolog_presorted", None)
+        if not isinstance(cache, dict):
+            cache = {}
+            try:
+                object.__setattr__(self._ufun, "_negolog_presorted", cache)
+            except Exception:
+                return
+        try:
+            cache[self._domain_signature()] = (
+                array("l", order),
+                array("d", utils),
+            )
+        except (TypeError, OverflowError, ValueError):
+            return
+
+    def _bids_from_presorted(self, presorted) -> List[Bid] | None:
+        """Rebuilds the sorted bid list from a cached order.
+
+        Re-runs the (cheap) enumeration and applies the recorded permutation and
+        utilities, skipping the ufun evaluations and the sort. Bid objects are
+        rebuilt rather than shared: NegoLog agents hand the very objects from this
+        list around and some mutate them in place, so reusing them across
+        negotiations would leak state between sessions.
+
+        Returns ``None`` if the entry no longer matches the ufun, in which case
+        ``bids`` recomputes and overwrites it.
+        """
+        order, utils = presorted
+        bids = self._enumerate_bids()
+        n = len(bids)
+        if n != len(order) or n != len(utils):
+            return None
+
+        # The entry outlives the adapter, so re-check a few utilities against the
+        # live ufun before trusting it: a ufun rescaled or normalized between
+        # negotiations (``Scenario.normalize()`` and friends) would otherwise be
+        # served stale numbers. Four evaluations rather than ``n``, and unlike the
+        # ``modified`` flag -- which older NegMAS releases do not have -- this
+        # works on every version. The comparison is exact because ``array("d")``
+        # round-trips a Python float losslessly.
+        for i in sorted({0, n // 3, (2 * n) // 3, n - 1}):
+            if utils[i] != float(self._ufun(self._bid_to_outcome(bids[i]))):
+                return None
+
+        for i, bid in enumerate(bids):
+            bid.utility = utils[i]
+        return [bids[i] for i in order]
+
+    @property
+    def bids(self) -> List[Bid]:
+        """
+        Generate all possible bids lazily.
+
+        Returns:
+            Sorted list of all possible bids (descending by utility)
+        """
+        if len(self._bids) > 0:
+            return self._bids
+
+        # Reuse the order computed for this ufun in an earlier negotiation, if any.
+        presorted = self._cached_presorted()
+        if presorted is not None:
+            bids = self._bids_from_presorted(presorted)
+            if bids is not None:
+                self._bids = bids
+                return bids
+
+        # Generate all bid combinations
+        bids = self._enumerate_bids()
+
+        # Assign utilities. They come from an already-built NegMAS inverse when
+        # one covers the space, and from the ufun directly otherwise (which is
+        # what ``get_utility`` does, inlined here to convert each bid once).
+        table = self._inverse_utilities()
+        for bid in bids:
+            outcome = self._bid_to_outcome(bid)
+            util = None if table is None else table.get(outcome)
+            bid.utility = float(self._ufun(outcome)) if util is None else util
+
+        # Sorting the *indices* by bid is the same stable, utility-only
+        # comparison as sorting the bids directly, so equal-utility bids keep
+        # their enumeration order -- and it yields the permutation to cache.
+        order = sorted(range(len(bids)), key=bids.__getitem__, reverse=True)
+        self._store_presorted(order, [bid.utility for bid in bids])
+        bids = [bids[i] for i in order]
         self._bids = bids
 
         return bids
