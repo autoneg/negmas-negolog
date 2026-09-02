@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Require `negmas>=0.16.0`** (was `>=0.15.2`). Older NegMAS releases are no
   longer supported; upgrade NegMAS before upgrading this package.
+- Declared AGPL-3.0 license metadata and reconciled it with the bundled
+  GPL-3.0 NegoLog; both license texts now ship in the distribution.
 - `Preference.copy()` now copies the preference itself rather than reloading it
   from its source file path.
 - Dropped the redundant `EstimatedPreference` patch, which discarded the
@@ -48,8 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Declared AGPL-3.0 license metadata and reconciled it with the bundled
-  GPL-3.0 NegoLog; both license texts ship in the distribution.
 - Removed the root `vendor/` tree; `_vendor` is now the sole NegoLog source.
 
 ## [0.2.3] - 2026-01-17
