@@ -1,6 +1,6 @@
 [project]
 name = "negmas-negolog"
-version = "0.2.4"
+version = "0.3.0"
 description = "NegMAS wrappers for NegoLog negotiating agents"
 readme = "README.md"
 # This project is AGPL-3.0. It bundles and redistributes NegoLog, which is
@@ -13,7 +13,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "negmas>=0.15.2",
+    "negmas>=0.16.0",
     "numpy>=1.24.0",
     "scipy>=1.10.0",
     "pandas>=2.0.0",
